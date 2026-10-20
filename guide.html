@@ -121,7 +121,7 @@ footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-si
   <p class="lead">직원 13명이 회의하고 규칙으로 결재하는 비트코인 자동매매. 프로그램이 어떻게 생겼고, 하루가 어떻게 돌아가고, 내가 뭘 누르면 되는지를 한 장에 모았습니다.</p>
   <div class="links"><span>앱 <b>fafa2kk-stack.github.io/bit-office</b></span><span>봇 <b>문서\crypto_backtest\</b></span><span>이 설명서 <b>문서\bit-office\guide.html</b></span></div>
 </header>
-<nav class="toc"><a href="#arch">구조</a><a href="#day">하루 흐름</a><a href="#setup">처음 설정</a><a href="#app">앱 화면</a><a href="#buttons">버튼 뜻</a><a href="#rules">규칙과 성적</a><a href="#money">돈과 안전</a><a href="#faq">막히면</a><a href="#words">용어</a></nav>
+<nav class="toc"><a href="#arch">구조</a><a href="#day">하루 흐름</a><a href="#setup">처음 설정</a><a href="#app">앱 화면</a><a href="#buttons">버튼 뜻</a><a href="#rules">규칙과 성적</a><a href="#money">돈과 안전</a><a href="#faq">막히면</a><a href="#words">용어</a><a href="#api">API 연동</a><a href="#upbit">업비트→바이낸스</a></nav>
 
 <section id="arch">
   <div class="head"><span class="eyebrow">01 · STRUCTURE</span><h2>프로그램은 세 조각. 메인은 PC의 봇</h2></div>
@@ -256,7 +256,7 @@ footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-si
 <section id="money">
   <div class="head"><span class="eyebrow">07 · MONEY & SAFETY</span><h2>돈은 어디 있고, 뭐가 막아주나</h2></div>
   <dl class="kv">
-    <dt>잔액</dt><dd>바이낸스 계정에 그대로. 봇은 주문만 냅니다. 선물은 선물 지갑, 현물은 현물 지갑, 하이브리드는 둘 다 USDT가 있어야 하고 봇은 지갑 간 이체를 하지 않습니다.</dd>
+    <dt>잔액</dt><dd>바이낸스 계정에 그대로. 봇은 주문만 냅니다. 기본 방식(하이브리드)은 롱을 현물 지갑에서, 숏을 선물 지갑에서 하며, 진입 전에 두 지갑 사이의 USDT를 봇이 알아서 옮깁니다. 이체가 안 되는 환경(모의거래 등)에선 각 지갑에 든 금액이 그 다리의 한도가 됩니다. 실계좌라면 돈은 현물 지갑에 넣어두면 됩니다.</dd>
     <dt>API 키 권한</dt><dd><b>거래만</b>. 출금 권한은 절대 켜지 않고, 가능하면 IP 제한. 키는 PC <code>.env</code>에만 있고 GitHub·폰에는 없습니다.</dd>
     <dt>레버리지</dt><dd>1배 고정 (코드에 박혀 있고, 거래소 설정이 1배가 아니면 가디언이 주문을 막음). 강제청산 위험은 사실상 없습니다.</dd>
     <dt>가디언</dt><dd>매 판정마다 한도 검사. KILL 파일이나 앱의 kill이 있으면 아무것도 안 함. 한도를 넘으면 전량 청산 후 HALT 파일을 남기고, 사람이 지우기 전엔 다시 안 움직입니다.</dd>
@@ -294,6 +294,33 @@ footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-si
     <dt>GitHub 토큰</dt><dd>레포의 파일 하나를 고칠 수 있는 열쇠. 소모되지 않고 만료일만 있음. 돈과 무관.</dd>
     <dt>status / control</dt><dd>봇의 보고서와 폰의 지시서. 레포에 있는 작은 파일 두 개.</dd>
   </dl>
+</section>
+
+
+<section id="api">
+  <div class="head"><span class="eyebrow">10 · API KEYS</span><h2>바이낸스 API 연동, 처음부터 끝까지</h2><p class="prose">API 키는 "이 프로그램이 내 계정으로 주문해도 된다"는 열쇠입니다. 모의거래(Demo) 키로 먼저 연습하고, 실계좌 키는 같은 방법으로 나중에 만듭니다.</p></div>
+  <ol class="steps">
+    <li><b>바이낸스 계정</b><p>binance.com → 가입(이메일) → 메일 인증 → 보안에서 구글 OTP 켜기. 모의거래엔 신분증 인증(KYC)이 필요 없고, 실거래·입금 때 필요합니다. 가입 이름·생년월일은 업비트와 똑같이 (나중에 송금 조건).</p></li>
+    <li><b>모의거래 켜기</b><p><b>demo.binance.com</b> 접속 → 로그인 → 처음이면 "Demo Trading 활성화" → 현물·선물 지갑에 가상 USDT가 들어옵니다. (앱: 더보기 → Demo Trading)</p></li>
+    <li><b>키 만들기</b><p>demo.binance.com 우상단 <b>계정(프로필) 아이콘 → API Management → Create API</b> → "System generated" → 이름 <code>bitoffice</code> → OTP → 화면에 <b>API Key</b>와 <b>Secret Key</b>. Secret은 그 화면에서만 보입니다. 닫으면 다시 못 보니 바로 복사. (잃어버리면 키 삭제 후 재발급)</p></li>
+    <li><b>권한 (Edit restrictions)</b><p>✅ Enable Spot &amp; Margin Trading (현물) ✅ Enable Futures (선물) — 둘 다 켜야 하이브리드가 됩니다. ❌ Enable Withdrawals는 절대 켜지 않습니다 (키가 새도 돈을 못 뺌). IP 제한: 집 IP가 고정이면 PC 공인 IP 입력, 아니면 Unrestricted.</p></li>
+    <li><b>.env에 붙여넣기</b><p><span class="path">문서\crypto_backtest\.env</span>를 메모장으로 열고 <code>BINANCE_API_KEY=</code>, <code>BINANCE_API_SECRET=</code> 뒤에 바로 붙여넣기(공백·따옴표 없이) → 저장. <code>BOT_TESTNET=1</code>, <code>BOT_DEMO=1</code>, <code>BOT_VENUE=hybrid</code>는 그대로. 파일 이름이 <code>.env.txt</code>로 바뀌지 않았는지 확인.</p></li>
+    <li><b>확인</b><p><span class="path">run_once.bat</span> 더블클릭 → <code>connected: DEMO hybrid …</code>와 <code>standby</code>(또는 <code>hold</code>)가 뜨면 성공. 에러 <code>-2015</code> → 권한·IP 제한, <code>-1022</code> → Secret 오타, <code>Invalid API-key</code> → 실서버 키와 모의 키를 바꿔 썼거나 <code>BOT_DEMO</code> 값 확인.</p></li>
+    <li><b>실계좌로 전환 (나중에)</b><p>binance.com 실서버 → 프로필 → API Management → Create API → 같은 방식. Enable Futures는 선물 계정을 먼저 개설해야 체크됩니다. KYC 필요, 출금 권한 금지, IP 제한 권장. <code>.env</code>의 키 교체 + <code>BOT_TESTNET=0</code>. 지갑엔 잃어도 되는 USDT만.</p></li>
+  </ol>
+</section>
+
+<section id="upbit">
+  <div class="head"><span class="eyebrow">11 · UPBIT → BINANCE</span><h2>업비트에서 바이낸스로 코인 보내기</h2><p class="prose">바이낸스는 원화를 못 받습니다. 업비트에서 코인을 사서 바이낸스 지갑으로 보내고, 거기서 USDT로 바꿉니다. 업비트 기준 바이낸스는 "계정주 확인 연동 거래소"라 100만 원 이상도 본인 계정으로는 보낼 수 있습니다 (2026-10 기준).</p></div>
+  <ol class="steps">
+    <li><b>조건 맞추기</b><p>업비트와 바이낸스의 <b>이름(한글 또는 영문)과 생년월일이 같아야</b> 합니다. 즉 바이낸스 KYC(신분증 + 얼굴 인증)를 먼저 끝내세요. 업비트는 원화를 넣은 뒤 일정 시간(첫 입금 72시간, 이후 입금·보안설정 변경 시 24시간) 코인 출금이 막히니, 보낼 날보다 미리 원화를 넣어두고 그 사이 이메일·OTP 같은 보안 설정을 바꾸지 마세요. 업비트 2채널 인증이 없으면 PC 웹에서만 출금됩니다.</p></li>
+    <li><b>무슨 코인으로 보낼까</b><p>싸고 빠른 걸로. <b>USDT (트론 TRC20)</b>: 업비트가 USDT 출금(트론망)을 지원하면 수수료 거의 0, 1~5분 도착, 바이낸스에서 그대로 USDT라 바꿀 필요 없음. 그게 안 보이면 <b>XRP</b>: 수수료 1 XRP 수준, 몇 초~몇 분 도착. 단 XRP는 <b>주소 + 데스티네이션 태그</b> 두 개를 모두 넣어야 하고, 태그를 빠뜨리면 코인이 사라집니다. 비트코인·이더리움은 수수료가 비싸서 송금용으론 비추.</p></li>
+    <li><b>바이낸스에서 받을 주소 복사</b><p>바이낸스 앱: 자산 → 입금 → 코인 선택(USDT 또는 XRP) → <b>네트워크 선택</b>(USDT면 Tron TRC20, XRP면 XRP) → 주소 복사. XRP면 아래 <b>Tag/Memo</b>도 복사. 네트워크가 업비트 출금 네트워크와 같아야 합니다 (다르면 분실).</p></li>
+    <li><b>업비트에서 출금</b><p>업비트 앱: 입출금 → 코인 선택 → <b>출금하기</b> → 주의사항 확인 → 네트워크 확인, 수량 입력 → 지갑 종류에서 <b>거래소 → 바이낸스</b> 선택 → 받는 주소 붙여넣기(XRP면 태그도) → 동의 체크 → 개인정보 국외 이전 동의 → 계정 정보 확인 → 2채널 인증. 처음엔 <b>소액으로 한 번 테스트</b>하고 도착을 확인한 뒤 본 금액을 보내세요. 신청 후엔 취소가 안 됩니다.</p></li>
+    <li><b>바이낸스에서 USDT로</b><p>도착하면 현물 지갑에 들어옵니다. XRP로 보냈으면 현물 거래 → XRP/USDT → 시장가 매도 → USDT. 하이브리드 봇은 현물 지갑의 USDT를 기준으로 움직이고, 숏이 필요할 때 선물 지갑으로 알아서 옮기니 그대로 두면 됩니다. (직접 옮기려면 지갑 → 전송 → 현물 ↔ USDⓈ-M 선물.)</p></li>
+    <li><b>알아둘 것</b><p>100만 원 미만은 조건이 덜하지만, 쪼개서 여러 번 보내면 이상거래로 막힐 수 있습니다. 해외 거래소 자산이 연중 5억 원을 넘으면 다음 해 6월 해외금융계좌 신고 대상입니다. 바이낸스 쪽 입금은 KYC를 마친 본인 계정에서만 받습니다.</p></li>
+  </ol>
+  <div class="note">출금 화면에서 "바이낸스"가 목록에 없거나 조건이 달라져 있으면 업비트 고객센터의 "입출금 가능 가상자산사업자 리스트"를 확인하세요. 규칙이 자주 바뀌는 영역입니다.</div>
 </section>
 
 <footer>비트 오피스 v3 · 2026-10-21 · 규칙은 백테스트에서 살아남은 것만, 판정은 규칙이, 설명은 직원이.</footer>
