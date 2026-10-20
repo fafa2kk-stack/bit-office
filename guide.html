@@ -1,0 +1,291 @@
+<title>비트 오피스 설명서</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+/* Layout: one long manual, left-aligned, 680px measure; app screenshots sit in device frames beside numbered callouts.
+   Palette borrowed from the app (gold on navy) but set on paper for reading. */
+:root{
+  --bg:#f3f5f9; --paper:#ffffff; --ink:#141a26; --ink2:#3d4658; --muted:#6b7488; --line:#d9dee8; --line2:#c3cad8;
+  --accent:#c99412; --accent-bg:#fff5d6; --navy:#1b2234; --navy-ink:#eef0f3;
+  --up:#1f9d58; --down:#d6405d; --cash:#3b6fd6; --warn:#d9742f;
+  --display:'Press Start 2P','Noto Sans KR',monospace; --body:'Noto Sans KR',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){ --bg:#0f131c; --paper:#161b27; --ink:#eef0f3; --ink2:#c7ccd8; --muted:#8a92a6; --line:#2a3142; --line2:#3a4258; --accent:#f5c542; --accent-bg:#2b2410; --navy:#0b0d13; --navy-ink:#eef0f3; --up:#48d17f; --down:#f0607a; --cash:#7aa2f7; --warn:#f08a4b; color-scheme:dark } }
+:root[data-theme="dark"]{ --bg:#0f131c; --paper:#161b27; --ink:#eef0f3; --ink2:#c7ccd8; --muted:#8a92a6; --line:#2a3142; --line2:#3a4258; --accent:#f5c542; --accent-bg:#2b2410; --navy:#0b0d13; --navy-ink:#eef0f3; --up:#48d17f; --down:#f0607a; --cash:#7aa2f7; --warn:#f08a4b; color-scheme:dark }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.7;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+.wrap{max-width:760px;margin:0 auto}
+a{color:var(--cash)}
+h1,h2,h3{text-wrap:balance;line-height:1.25;margin:0}
+h1{font-size:30px;font-weight:900;letter-spacing:-.01em}
+h2{font-size:21px;font-weight:900;margin-top:8px}
+h3{font-size:16px;font-weight:700}
+p{margin:0}
+.eyebrow{font-family:var(--display);font-size:9px;letter-spacing:.12em;color:var(--accent);text-transform:uppercase}
+.cover{padding:40px 0 28px;border-bottom:1px solid var(--line);display:grid;gap:14px}
+.cover .lead{font-size:16.5px;color:var(--ink2);max-width:60ch}
+.cover .links{display:flex;gap:8px;flex-wrap:wrap;font-size:13px}
+.cover .links span{background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:5px 12px;color:var(--ink2)}
+.cover .links b{color:var(--ink)}
+nav.toc{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:13px;padding:14px 0;border-bottom:1px solid var(--line);color:var(--muted)}
+nav.toc a{color:var(--ink2);text-decoration:none;border-bottom:1px dotted var(--line2)}
+section{padding:36px 0 8px;display:grid;gap:16px}
+section > .head{display:grid;gap:6px}
+.prose{max-width:66ch;color:var(--ink2)}
+.prose b{color:var(--ink)}
+/* architecture */
+.arch{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:stretch}
+.arch .box{background:var(--paper);border:1px solid var(--line2);border-radius:14px;padding:14px 14px 12px;display:grid;gap:6px;align-content:start;min-width:0}
+.arch .box.main{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg)}
+.arch .box .tag{font-family:var(--display);font-size:8px;color:var(--muted);letter-spacing:.1em}
+.arch .box h3{font-size:17px}
+.arch .box .where{font-size:12.5px;color:var(--muted)}
+.arch .box ul{margin:4px 0 0;padding-left:18px;font-size:13.5px;color:var(--ink2)}
+.arch .box li{margin:2px 0}
+.arch .box .you{margin-top:6px;font-size:13px;padding:6px 9px;border-radius:8px;background:var(--accent-bg);color:var(--ink)}
+.arch .link{display:grid;align-content:center;justify-items:center;gap:2px;font-size:11.5px;color:var(--muted);text-align:center;min-width:70px}
+.arch .link .arrow{font-size:22px;line-height:1;color:var(--accent)}
+.arch .link code{font-size:11px}
+.sub{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sub .box{background:var(--paper);border:1px dashed var(--line2);border-radius:14px;padding:12px 14px;font-size:13.5px;color:var(--ink2);min-width:0}
+.sub .box b{color:var(--ink)}
+@media (max-width:640px){
+  .arch{grid-template-columns:1fr}
+  .arch .link{min-width:0;padding:2px 0}.arch .link .arrow{transform:rotate(90deg)}
+  .sub{grid-template-columns:1fr}
+}
+/* timeline */
+ol.timeline{list-style:none;margin:0;padding:0;display:grid;gap:0}
+ol.timeline li{display:grid;grid-template-columns:74px 1fr;gap:14px;position:relative;padding:0 0 18px}
+ol.timeline li::before{content:"";position:absolute;left:84px;top:22px;bottom:-4px;width:2px;background:var(--line)}
+ol.timeline li:last-child::before{display:none}
+ol.timeline .t{font-family:var(--display);font-size:9px;color:var(--accent);padding-top:6px;text-align:right;line-height:1.5}
+ol.timeline .c{position:relative;padding-left:22px;min-width:0}
+ol.timeline .c::before{content:"";position:absolute;left:4px;top:7px;width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px var(--accent-bg)}
+ol.timeline .c b{display:block;color:var(--ink)}
+ol.timeline .c span{color:var(--ink2);font-size:14px}
+/* steps */
+ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:12px;counter-reset:s}
+ol.steps li{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px 16px 14px 58px;position:relative;counter-increment:s;min-width:0}
+ol.steps li::before{content:counter(s);position:absolute;left:16px;top:14px;width:28px;height:28px;border-radius:50%;background:var(--navy);color:var(--accent);font-weight:900;font-size:14px;display:grid;place-items:center}
+ol.steps li > b{display:block;font-size:15.5px;margin-bottom:4px}
+ol.steps li p{color:var(--ink2);font-size:14px}
+ol.steps li .path{display:inline-block;font-size:12.5px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:1px 7px;margin:2px 2px 2px 0;font-variant-numeric:tabular-nums}
+code{font-size:13px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+.note{border-left:3px solid var(--accent);background:var(--accent-bg);padding:10px 14px;border-radius:0 10px 10px 0;font-size:14px;color:var(--ink)}
+/* screens */
+.screen{display:grid;grid-template-columns:minmax(0,300px) 1fr;gap:18px;align-items:start}
+.screen.wide{grid-template-columns:1fr}
+.frame{background:var(--navy);border:1px solid var(--line2);border-radius:18px;padding:8px;box-shadow:0 10px 26px rgba(0,0,0,.18)}
+.frame img{display:block;width:100%;height:auto;border-radius:12px}
+.callouts{margin:0;padding:0;list-style:none;display:grid;gap:10px;counter-reset:c;min-width:0}
+.callouts li{display:grid;grid-template-columns:26px 1fr;gap:10px;counter-increment:c;font-size:14px;color:var(--ink2)}
+.callouts li::before{content:counter(c);width:24px;height:24px;border-radius:50%;background:var(--accent);color:#1a1400;font-weight:900;font-size:12.5px;display:grid;place-items:center;margin-top:2px}
+.callouts li b{color:var(--ink)}
+@media (max-width:640px){.screen{grid-template-columns:1fr}}
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:14px;background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:12.5px;color:var(--muted);font-weight:700;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.tw{overflow-x:auto;min-width:0}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;border:1px solid}
+.pill.start{color:var(--up);border-color:var(--up)}.pill.stop{color:var(--accent);border-color:var(--accent)}.pill.flat{color:var(--down);border-color:var(--down)}.pill.set{color:var(--cash);border-color:var(--cash)}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.rule{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;min-width:0}
+.rule h3{color:var(--accent);margin-bottom:6px}
+.rule p{font-size:14px;color:var(--ink2)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
+.kv dt{color:var(--muted);font-weight:700;white-space:nowrap}
+.kv dd{margin:0;color:var(--ink2);min-width:0}
+.kv dd b{color:var(--ink)}
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+@media print{body{background:#fff;color:#111;font-size:12.5px}.frame{box-shadow:none}section{break-inside:auto}.screen,.arch,table,ol.steps li,.rule{break-inside:avoid}}
+</style>
+
+<div class="wrap">
+<header class="cover">
+  <span class="eyebrow">BIT OFFICE · USER GUIDE</span>
+  <h1>비트 오피스 설명서</h1>
+  <p class="lead">직원 13명이 회의하고 규칙으로 결재하는 비트코인 자동매매. 프로그램이 어떻게 생겼고, 하루가 어떻게 돌아가고, 내가 뭘 누르면 되는지를 한 장에 모았습니다.</p>
+  <div class="links"><span>앱 <b>fafa2kk-stack.github.io/bit-office</b></span><span>봇 <b>문서\crypto_backtest\</b></span><span>이 설명서 <b>문서\bit-office\guide.html</b></span></div>
+</header>
+<nav class="toc"><a href="#arch">구조</a><a href="#day">하루 흐름</a><a href="#setup">처음 설정</a><a href="#app">앱 화면</a><a href="#buttons">버튼 뜻</a><a href="#rules">규칙과 성적</a><a href="#money">돈과 안전</a><a href="#faq">막히면</a><a href="#words">용어</a></nav>
+
+<section id="arch">
+  <div class="head"><span class="eyebrow">01 · STRUCTURE</span><h2>프로그램은 세 조각. 메인은 PC의 봇</h2></div>
+  <div class="arch">
+    <div class="box main"><span class="tag">MAIN</span><h3>① 봇</h3><span class="where">PC · 문서\crypto_backtest\</span>
+      <ul><li>매일 09:03 시세를 읽고 규칙으로 판정</li><li>바이낸스에 주문 (돈이 움직이는 유일한 곳)</li><li>10분마다 폰의 지시를 확인</li></ul>
+      <div class="you">내가 할 일: <b>start_bot.bat</b> 창 켜두기</div></div>
+    <div class="link"><span class="arrow">⇄</span><span>status.json ↑<br>control.json ↓</span></div>
+    <div class="box"><span class="tag">MAILBOX</span><h3>② GitHub</h3><span class="where">인터넷 · 레포 bit-office</span>
+      <ul><li>봇의 보고서 <code>status.json</code></li><li>폰의 지시서 <code>control.json</code></li><li>앱 페이지를 올려두는 곳</li></ul>
+      <div class="you">내가 할 일: 없음 (자동)</div></div>
+    <div class="link"><span class="arrow">⇄</span><span>버튼 → 지시서<br>보고서 → 화면</span></div>
+    <div class="box"><span class="tag">REMOTE</span><h3>③ 폰 앱</h3><span class="where">웹페이지 · 어디서든</span>
+      <ul><li>거래 시작 / 중지 / 전량 청산 버튼</li><li>봇 상태 (자산·포지션·판정)</li><li>사무실 회의와 모의 리플레이</li></ul>
+      <div class="you">내가 할 일: 보고, 필요하면 누르기</div></div>
+  </div>
+  <div class="sub">
+    <div class="box"><b>바이낸스</b> — 내 돈은 여기 계좌에 그대로 있습니다. 봇은 API 키로 "사라 / 팔아라" 주문만 보내고, 거래소가 체결합니다. 출금 권한은 키에 주지 않습니다.</div>
+    <div class="box"><b>클로드(AI)</b> — 운영에는 안 끼어 있습니다. 코드를 고치거나, 저널을 보고 "어제 왜 그랬는지" 설명할 때만 부르면 됩니다. 회의 대사와 판정은 전부 규칙(if문)이라 토큰 0.</div>
+  </div>
+</section>
+
+<section id="day">
+  <div class="head"><span class="eyebrow">02 · A DAY</span><h2>하루가 돌아가는 순서</h2><p class="prose">일봉 전략이라 하루에 한 번만 판정합니다. 나머지 시간엔 폰의 지시만 확인하며 기다립니다.</p></div>
+  <ol class="timeline">
+    <li><span class="t">09:00</span><div class="c"><b>일봉 마감</b><span>바이낸스 기준 자정(UTC) = 한국 09:00. 어제 하루 캔들이 확정됩니다.</span></div></li>
+    <li><span class="t">09:03</span><div class="c"><b>봇 판정</b><span>최근 400일 시세 → 종가와 200일선 비교, 하락장이면 20일 저점 이탈 확인 → 롱 / 현금 / 숏 결정. 가디언이 한도 검사.</span></div></li>
+    <li><span class="t">09:03</span><div class="c"><b>주문 (거래 시작이 켜져 있을 때만)</b><span>목표 포지션과 지금 포지션이 2% 이상 다르면 시장가로 맞춥니다. 같으면 아무것도 안 합니다. 보통은 "유지"가 대부분이라 한 달에 몇 번 거래합니다.</span></div></li>
+    <li><span class="t">09:04</span><div class="c"><b>보고</b><span>자산·포지션·판정·다음 판정 시각을 <code>status.json</code>으로 올립니다. 폰 앱 실제 봇 탭에 바로 뜹니다.</span></div></li>
+    <li><span class="t">10분마다</span><div class="c"><b>지시 확인</b><span><code>control.json</code>을 읽어 거래 시작/중지, 전량 청산, 거래 방식 변경을 반영합니다. 전량 청산은 기다리지 않고 바로 실행합니다.</span></div></li>
+    <li><span class="t">다음날</span><div class="c"><b>반복</b><span>PC가 켜져 있고 start_bot 창이 살아 있는 한 매일 반복. 내가 아무것도 안 눌러도 규칙대로 갑니다.</span></div></li>
+  </ol>
+</section>
+
+<section id="setup">
+  <div class="head"><span class="eyebrow">03 · FIRST TIME</span><h2>처음 한 번 설정 (10분)</h2><p class="prose">열쇠 두 개를 꽂는 작업입니다. 바이낸스 키는 봇이 거래소에 들어가는 열쇠, GitHub 토큰은 봇과 폰이 같은 우체통을 쓰는 열쇠.</p></div>
+  <ol class="steps">
+    <li><b>바이낸스 테스트넷 키 → .env</b><p>testnet.binancefuture.com 로그인 → API Key 메뉴 → Key / Secret 복사. <span class="path">문서\crypto_backtest\.env.example</span>을 복사해 이름을 <span class="path">.env</span>로 바꾸고 메모장으로 열어 <code>BINANCE_API_KEY</code>, <code>BINANCE_API_SECRET</code>을 채웁니다. <code>BOT_TESTNET=1</code>은 그대로 (가짜 돈).</p></li>
+    <li><b>GitHub 토큰 → .env 와 폰 앱, 둘 다</b><p>github.com → Settings → Developer settings → Fine-grained tokens → Generate. Repository access는 <b>bit-office만</b>, Permissions는 <b>Contents: Read and write</b>만, 만료 1년. 받은 <code>github_pat_...</code>을 <code>.env</code>의 <code>GITHUB_TOKEN=</code> 뒤에 붙이고, 폰 앱 실제 봇 탭 → "연결" 칸에도 붙여넣고 [저장하고 연결 확인].</p></li>
+    <li><b>PC에서 봇 켜기</b><p><span class="path">setup.bat</span> 한 번 (처음만, 라이브러리 설치) → <span class="path">run_once.bat</span> 더블클릭해서 창에 <code>standby</code> 또는 <code>hold</code>가 뜨고 빨간 에러가 없으면 OK → <span class="path">start_bot.bat</span> 더블클릭하고 창을 켜둡니다. 이 창이 봇입니다. 폰 앱에 "봇 연결됨"이 켜집니다.</p></li>
+    <li><b>폰에서 ▶ 거래 시작</b><p>실제 봇 탭 → ▶ 거래 시작 → 확인. 봇이 10분 안에 읽고, 다음 09:03 판정부터 주문을 냅니다. 테스트넷으로 몇 주 지켜본 뒤 실계좌 키로 바꾸고 <code>BOT_TESTNET=0</code>.</p></li>
+  </ol>
+  <div class="note">토큰을 넣기 전엔 봇이 <code>.env</code>대로 바로 거래하고, 넣은 뒤부터는 폰에서 거래 시작을 눌러야 주문이 나갑니다. 그 전까진 매일 판정만 하고 <code>standby</code>로 기록합니다.</div>
+</section>
+
+<section id="app">
+  <div class="head"><span class="eyebrow">04 · THE APP</span><h2>앱 화면 안내</h2><p class="prose">탭 네 개: 사무실 · 실제 봇 · 차트·규칙 · 기록. 폰 브라우저에서 열고 "홈 화면에 추가"하면 앱처럼 씁니다.</p></div>
+
+  <h3>사무실 탭 — 회의를 구경하는 곳</h3>
+  <div class="screen wide"><div class="frame"><img src="img/office.png" alt="픽셀 사무실: 시황 데스크, 리서치 테이블, 트레이딩 플로어, 대표실, 리스크 위원회"></div></div>
+  <div class="screen">
+    <div class="frame"><img src="img/verdict.png" alt="오늘의 결재 카드와 재생 버튼"></div>
+    <ol class="callouts">
+      <li><span><b>시황 데스크 (5명)</b> 차트·모멘텀·변동성·수급·심리가 각자 숫자를 보고합니다. 말풍선이 순서대로 뜹니다.</span></li>
+      <li><span><b>리서치 (3명)</b> 매수파와 매도파가 근거를 대고, 팀장이 "결론은 규칙이 낸다"로 정리합니다.</span></li>
+      <li><span><b>트레이딩 본부 · 리스크 위원회</b> 숏데스크가 저점 이탈을 확인, 리스크가 한도를 검사, 사이저가 수량을 계산, 트레이더가 주문 문장을 읽습니다.</span></li>
+      <li><span><b>대표 결재</b> 마지막 말풍선. 아래 <b>오늘의 결재</b> 카드에 같은 결론이 롱(초록)·현금(파랑)·숏(빨강)으로 뜹니다.</span></li>
+      <li><span><b>재생 버튼</b> ▶ 하루 진행은 과거 하루씩, ⏩ 자동 재생은 쭉, ⏭ 오늘(최신)로는 실제 오늘 회의. 이건 모의 계좌(가짜 1만 달러)라 실제 돈과 무관합니다.</span></li>
+    </ol>
+  </div>
+  <div class="screen">
+    <div class="frame"><img src="img/account.png" alt="모의 계좌 패널"></div>
+    <ol class="callouts">
+      <li><span><b>모의 계좌</b> 같은 규칙으로 1만 달러를 굴렸을 때의 자산·누적·최대 낙폭·존버 비교. 실제 돈이 아니라 연습용. 실제 봇 숫자는 실제 봇 탭에 따로 있습니다.</span></li>
+      <li><span><b>거래 방식</b> 차트·규칙 탭에서 현물/선물/하이브리드를 바꾸면 모의 계좌가 처음부터 다시 돕니다.</span></li>
+    </ol>
+  </div>
+
+  <h3>실제 봇 탭 — 리모컨</h3>
+  <div class="screen">
+    <div class="frame"><img src="img/control.png" alt="실제 봇 관제실: 상태 칩, 숫자 타일, 거래 시작/중지/청산 버튼"></div>
+    <ol class="callouts">
+      <li><span><b>상태 칩</b> 봇 연결됨(초록) / 보고 오래됨(주황) · 거래 켜짐/꺼짐 · 거래 방식 · 앱↔GitHub 연결.</span></li>
+      <li><span><b>숫자 타일</b> 실제 계좌의 자산·포지션·마지막 판정·가디언·다음 판정 시각·테스트넷/실계좌. 봇이 마지막으로 보고한 값입니다.</span></li>
+      <li><span><b>큰 버튼 3개</b> ▶ 거래 시작 / ⏸ 거래 중지 / ⛔ 전량 청산 후 중지. 누르면 확인 창이 한 번 더 뜹니다.</span></li>
+      <li><span><b>설정</b> 거래 방식(현물·선물·하이브리드)과 숏 비율. [설정 저장]을 눌러야 반영됩니다.</span></li>
+    </ol>
+  </div>
+  <div class="screen">
+    <div class="frame"><img src="img/connect.png" alt="연결 패널: GitHub 토큰 입력과 아침 체크리스트"></div>
+    <ol class="callouts">
+      <li><span><b>연결</b> GitHub 토큰을 한 번 넣습니다. 이 폰에만 저장되고 GitHub에만 보내집니다. 바이낸스 키는 여기 넣지 않습니다 (PC에만).</span></li>
+      <li><span><b>체크리스트</b> 봇 첫 보고, 토큰, 봇 연결, 거래 시작이 되면 자동으로 체크됩니다.</span></li>
+    </ol>
+  </div>
+
+  <h3>차트·규칙 탭, 기록 탭</h3>
+  <div class="screen">
+    <div class="frame"><img src="img/chart.png" alt="BTC 일봉 차트: 종가, MA200, 20일 저점, 보유 구간"></div>
+    <ol class="callouts">
+      <li><span><b>차트</b> 흰 선 종가, 노란 선 200일 이동평균, 분홍 선 20일 저점. 초록 띠는 롱 보유, 빨간 띠는 숏 보유 구간.</span></li>
+      <li><span><b>규칙 카드</b> 세 규칙과 "지금" 값. 종가가 노란 선 위면 롱, 아래면 현금, 아래에서 분홍 선까지 깨면 숏.</span></li>
+      <li><span><b>기록 탭</b> 날짜별 종가·MA200·신호·결재·자산 표. 모의 리플레이의 일지입니다. 실제 봇의 일지는 PC의 <code>state\journal.jsonl</code>.</span></li>
+    </ol>
+  </div>
+</section>
+
+<section id="buttons">
+  <div class="head"><span class="eyebrow">05 · BUTTONS</span><h2>버튼이 실제로 하는 일</h2></div>
+  <div class="tw"><table>
+    <thead><tr><th>버튼</th><th>control.json</th><th>봇이 하는 일</th><th>언제 반영</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill start">▶ 거래 시작</span></td><td><code>trading: "on"</code></td><td>다음 판정부터 규칙대로 주문. 켜기 전엔 판정만 하고 기록(standby).</td><td class="num">≤10분 뒤 인지, 주문은 09:03</td></tr>
+      <tr><td><span class="pill stop">⏸ 거래 중지</span></td><td><code>trading: "off"</code></td><td>신규 주문 없음. 지금 포지션은 그대로 둠.</td><td class="num">≤10분</td></tr>
+      <tr><td><span class="pill flat">⛔ 전량 청산 후 중지</span></td><td><code>flatten: true</code></td><td>포지션을 시장가로 전부 정리하고 거래 off. 처리 후 flatten을 false로 되돌려 씀 (한 번만 실행).</td><td class="num">≤10분, 즉시 실행</td></tr>
+      <tr><td><span class="pill set">설정 저장</span></td><td><code>venue</code>, <code>short_size</code></td><td>거래 방식을 바꾸면 봇이 어댑터를 갈아 끼움 (키에 그 시장 권한 필요). 숏 비율 0~100%.</td><td class="num">≤10분</td></tr>
+      <tr><td>github.com 직접 편집</td><td><code>kill: true</code></td><td>비상 정지. 아무것도 안 함. false로 돌리면 해제.</td><td class="num">≤10분</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note">폰 앱이 바이낸스에 직접 주문을 내는 일은 없습니다. 모든 버튼은 "지시서를 고치는" 것이고, 실행은 PC의 봇이 합니다. PC가 꺼져 있으면 버튼은 저장만 되고 봇이 켜질 때 반영됩니다.</div>
+</section>
+
+<section id="rules">
+  <div class="head"><span class="eyebrow">06 · RULES</span><h2>규칙과 성적</h2><p class="prose">2017년부터의 바이낸스 일봉으로 수백 개 조합을 걸러 살아남은 것만 씁니다. 수수료·슬리피지·펀딩은 보수적으로 넣었고, 1분~1시간봉은 수수료 때문에 전부 탈락했습니다.</p></div>
+  <div class="rules">
+    <div class="rule"><h3>롱</h3><p>종가 &gt; 200일 이동평균이면 롱 100%, 아니면 현금. 상승 추세에 타고 하락 추세엔 비켜 섭니다.</p></div>
+    <div class="rule"><h3>숏</h3><p>200일선 아래(하락 레짐)에서 20일 저점을 종가로 깨면 숏 50%, 12일 보유 후 청산. 하락장에서만 짧게.</p></div>
+    <div class="rule"><h3>리스크</h3><p>당일 −8% 또는 고점 대비 −45%면 전량 청산 후 정지. 하루 주문 3건 초과, 오래된 데이터, 가격 급차이, 레버리지≠1이면 주문 차단.</p></div>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th>2022~2026 (학습에 안 쓴 구간), 1만 달러 시작</th><th>최종</th><th>최대 낙폭</th></tr></thead>
+    <tbody>
+      <tr><td>그냥 존버</td><td class="num">1.74배</td><td class="num">−67%</td></tr>
+      <tr><td>선물 (롱+숏, 펀딩비 냄)</td><td class="num">3.29배</td><td class="num">−37%</td></tr>
+      <tr><td>현물 (롱만, 펀딩비 없음)</td><td class="num">3.43배</td><td class="num">−32%</td></tr>
+      <tr><td>하이브리드 (롱은 현물, 숏은 선물)</td><td class="num">4.27배</td><td class="num">−35%</td></tr>
+    </tbody>
+  </table></div>
+  <p class="prose">연 복리로 25~30%대, 거래는 한 달에 몇 번. 과거 성적이 미래를 보장하진 않지만, 과최적화를 걸러낸 숫자라 "유튜브 1,000%"류와는 결이 다릅니다. 떨어지는 해도 있습니다. 최대 낙폭 −35%는 "계좌가 한때 35% 줄어든 적이 있다"는 뜻이니 그걸 견딜 금액으로만.</p>
+</section>
+
+<section id="money">
+  <div class="head"><span class="eyebrow">07 · MONEY & SAFETY</span><h2>돈은 어디 있고, 뭐가 막아주나</h2></div>
+  <dl class="kv">
+    <dt>잔액</dt><dd>바이낸스 계정에 그대로. 봇은 주문만 냅니다. 선물은 선물 지갑, 현물은 현물 지갑, 하이브리드는 둘 다 USDT가 있어야 하고 봇은 지갑 간 이체를 하지 않습니다.</dd>
+    <dt>API 키 권한</dt><dd><b>거래만</b>. 출금 권한은 절대 켜지 않고, 가능하면 IP 제한. 키는 PC <code>.env</code>에만 있고 GitHub·폰에는 없습니다.</dd>
+    <dt>레버리지</dt><dd>1배 고정 (코드에 박혀 있고, 거래소 설정이 1배가 아니면 가디언이 주문을 막음). 강제청산 위험은 사실상 없습니다.</dd>
+    <dt>가디언</dt><dd>매 판정마다 한도 검사. KILL 파일이나 앱의 kill이 있으면 아무것도 안 함. 한도를 넘으면 전량 청산 후 HALT 파일을 남기고, 사람이 지우기 전엔 다시 안 움직입니다.</dd>
+    <dt>기록</dt><dd>모든 판정과 주문은 PC <code>state\journal.jsonl</code>에 한 줄씩. 보여주면 "그날 왜 그랬는지" 설명할 수 있습니다.</dd>
+    <dt>지금 당장 멈추기</dt><dd>폰: ⛔ 전량 청산 후 중지. PC: start_bot 창 닫기 (주문은 더 안 나가고 포지션은 남음). 바이낸스 앱에서 직접 청산해도 됩니다. 봇은 다음 판정 때 거래소 포지션을 다시 읽어 맞춥니다.</dd>
+  </dl>
+</section>
+
+<section id="faq">
+  <div class="head"><span class="eyebrow">08 · TROUBLE</span><h2>막히면</h2></div>
+  <div class="tw"><table>
+    <thead><tr><th>증상</th><th>원인과 해결</th></tr></thead>
+    <tbody>
+      <tr><td>start_bot 창이 바로 꺼짐</td><td><code>.env</code>에 키가 없거나 오타. run_once.bat로 돌려 빨간 줄을 읽고, 그 줄을 복사해서 클로드에게.</td></tr>
+      <tr><td>앱에 "봇 보고 오래됨"</td><td>PC가 꺼졌거나 start_bot 창이 닫혔거나 인터넷이 끊김. 다시 더블클릭.</td></tr>
+      <tr><td>버튼 눌렀는데 "저장 실패"</td><td>GitHub 토큰 권한 확인: 레포 bit-office, Contents: Read and write. 만료됐을 수도.</td></tr>
+      <tr><td>거래 시작 눌렀는데 주문이 없음</td><td>정상일 수 있음. 판정은 09:03에만, 그리고 목표가 지금 포지션과 같으면 "유지"로 주문 없음. 실제 봇 탭의 마지막 판정 칸을 보세요.</td></tr>
+      <tr><td>PC를 껐다 켰다</td><td>start_bot.bat 다시 더블클릭. 포지션은 거래소에 그대로 있고 봇이 읽어옵니다.</td></tr>
+      <tr><td>클로드 아티팩트 화면에선 버튼이 안 됨</td><td>그 화면은 네트워크가 막힌 미리보기. 폰·PC 브라우저에서 fafa2kk-stack.github.io/bit-office 를 여세요.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="words">
+  <div class="head"><span class="eyebrow">09 · WORDS</span><h2>용어</h2></div>
+  <dl class="kv">
+    <dt>API</dt><dd>프로그램끼리 쓰는 창구. "시세 주세요", "이거 사주세요"를 보내는 통로. 공짜고, 토큰과 무관.</dd>
+    <dt>API 키</dt><dd>그 창구를 내 계정으로 쓰게 해주는 열쇠. 권한을 거래만으로 제한할 수 있음.</dd>
+    <dt>테스트넷</dt><dd>가짜 돈으로 진짜처럼 주문하는 연습 거래소. 선물은 testnet.binancefuture.com, 현물은 testnet.binance.vision.</dd>
+    <dt>현물 / 선물</dt><dd>현물은 코인을 진짜로 사고팜(롱만, 펀딩비 없음, 수수료 0.1%). 선물은 계약이라 숏도 됨(수수료 0.05%, 8시간마다 펀딩비).</dd>
+    <dt>하이브리드</dt><dd>롱은 현물 지갑, 숏은 선물 지갑. 롱에 펀딩비를 안 내서 백테스트 성적이 가장 좋음.</dd>
+    <dt>펀딩비</dt><dd>선물에서 롱과 숏이 8시간마다 주고받는 소액. 보통 롱이 냄 (연 10% 안팎).</dd>
+    <dt>MA200 / 레짐</dt><dd>200일 평균 가격. 그 위면 상승 레짐, 아래면 하락 레짐으로 봅니다.</dd>
+    <dt>가디언</dt><dd>봇 안의 안전장치 모듈. 한도를 넘으면 주문을 막거나 전량 청산합니다.</dd>
+    <dt>GitHub 토큰</dt><dd>레포의 파일 하나를 고칠 수 있는 열쇠. 소모되지 않고 만료일만 있음. 돈과 무관.</dd>
+    <dt>status / control</dt><dd>봇의 보고서와 폰의 지시서. 레포에 있는 작은 파일 두 개.</dd>
+  </dl>
+</section>
+
+<footer>비트 오피스 v3 · 2026-10-21 · 규칙은 백테스트에서 살아남은 것만, 판정은 규칙이, 설명은 직원이.</footer>
+</div>
