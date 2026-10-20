@@ -185,8 +185,9 @@ select{accent-color:var(--accent);background:var(--panel2);color:var(--ink);bord
 <header>
   <div class="brand">
     <div class="logo">BIT OFFICE<small>직원 13명이 회의하고 규칙으로 결재하는 비트코인 사무실</small></div>
-    <div class="ticker"><canvas id="spark" width="144" height="52"></canvas><span><span class="px" id="tkPx">—</span> <span class="chg" id="tkChg">—</span><br><span class="note" id="tkDate">—</span></span></div>
+    <button id="btnInstall" hidden style="font-size:12.5px;padding:8px 12px;border-radius:999px;background:linear-gradient(180deg,var(--accent2),var(--accent));color:var(--accent-ink);border:0">📲 앱으로 설치</button><div class="ticker"><canvas id="spark" width="144" height="52"></canvas><span><span class="px" id="tkPx">—</span> <span class="chg" id="tkChg">—</span><br><span class="note" id="tkDate">—</span></span></div>
   </div>
+  <div class="banner" id="iosHint" hidden style="margin:8px 0 0;font-size:12px;padding:8px 10px">아이폰: 아래 공유 버튼(⬆) → 목록 아래로 → <b>홈 화면에 추가</b> 하면 앱처럼 열려요. <button class="ghost" id="iosHintClose" style="padding:2px 8px;font-size:11px;margin-left:6px">닫기</button></div>
   <div class="tabs" role="tablist">
     <div class="tab" role="tab" tabindex="0" aria-selected="true" data-tab="office">🏢 사무실</div>
     <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="bot">🎛 실제 봇</div>
@@ -835,6 +836,15 @@ document.getElementById('selVenue').onchange = e => { S.venue = e.target.value; 
 document.getElementById('selSpeed').onchange = e => { S.speed = parseInt(e.target.value,10); save(); };
 { const g = document.getElementById('staffGrid'); for (const s of STAFF){ const d = document.createElement('div'); d.appendChild(portrait(s)); const t = document.createElement('div'); t.innerHTML = `<span class="dept ${s.dept}">${DEPT[s.dept]}</span><b>${s.name}</b><span>${s.role}</span>`; d.appendChild(t); g.appendChild(d); } }
 
+// 설치 (PWA): https 에서만. 아티팩트/파일에선 건너뜀
+if (/^https:/.test(location.protocol) && 'serviceWorker' in navigator && !/claude/.test(location.hostname)) { navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+let installEvt = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; document.getElementById('btnInstall').hidden = false; });
+document.getElementById('btnInstall').onclick = async () => { if (!installEvt) return; installEvt.prompt(); try { await installEvt.userChoice; } catch(e) {} installEvt = null; document.getElementById('btnInstall').hidden = true; };
+window.addEventListener('appinstalled', () => { document.getElementById('btnInstall').hidden = true; });
+{ const ios = /iphone|ipad|ipod/i.test(navigator.userAgent), standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; let dismissed = false; try { dismissed = localStorage.getItem('bitoffice.ioshint') === '1'; } catch(e) {}
+  if (ios && !standalone && !dismissed && /^https:/.test(location.protocol)) document.getElementById('iosHint').hidden = false;
+  document.getElementById('iosHintClose').onclick = () => { document.getElementById('iosHint').hidden = true; try { localStorage.setItem('bitoffice.ioshint', '1'); } catch(e) {} }; }
 ensureBubbles();
 if (!load()) { S.bhStart = priceAt(FIRST); decide(true); }
 document.getElementById('selShort').value = String(S.shortSize); document.getElementById('selSpeed').value = String(S.speed); document.getElementById('selVenue').value = S.venue; document.getElementById('selShort').disabled = S.venue==='spot';
