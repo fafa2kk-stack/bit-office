@@ -7,8 +7,10 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-ZSt033NS+GwiBxmKBtWnY+c87AjkH7zYXuPNVmxBJvs='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://data-api.binance.vision https://api.binance.com https://fapi.binance.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <title>비트 오피스</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#0d1017">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -282,9 +284,12 @@ select{accent-color:var(--accent);background:var(--panel2);color:var(--ink);bord
 
   <div class="panel">
     <div class="ph"><h2>연결</h2><span class="sub">폰 → GitHub → PC 봇</span></div>
-    <div class="note">이 앱은 주문을 직접 내지 않아요. 버튼을 누르면 레포의 <code>control.json</code>이 바뀌고, PC의 봇이 그걸 읽어 따릅니다. 아래 토큰은 이 기기에만 저장되고 GitHub에만 전송돼요 (레포 하나의 파일 편집 권한뿐, 돈과는 무관).</div>
-    <div class="field"><label for="ghToken">GitHub Fine-grained 토큰 (bit-office 레포 · Contents: Read and write)</label><input type="password" id="ghToken" placeholder="github_pat_..." autocomplete="off"></div>
-    <div class="controls"><button class="primary" id="btnSaveToken">저장하고 연결 확인</button><button class="ghost" id="btnClearToken">토큰 지우기</button><button id="btnRefresh">상태 새로고침</button></div>
+    <div class="note">이 앱은 주문을 직접 내지 않아요. 버튼을 누르면 레포의 <code>control.json</code>이 바뀌고, PC의 봇이 그걸 읽어 따릅니다. 아래 토큰은 이 기기에만 저장되고(PIN 암호화 가능) GitHub에만 전송돼요 (레포 하나의 파일 편집 권한뿐, 돈과는 무관). 바이낸스·업비트 키는 절대 여기 넣지 않습니다.</div>
+    <div class="banner" id="lockBox" hidden>🔒 토큰이 PIN으로 잠겨 있어요. <input type="password" id="unlockPin" inputmode="numeric" placeholder="PIN" autocomplete="off" style="width:110px;display:inline-block;margin:0 6px"><button class="primary" id="btnUnlock">잠금 해제</button></div>
+    <div class="field"><label for="ghToken">GitHub Fine-grained 토큰 (데이터 레포 · Contents: Read and write)</label><input type="password" id="ghToken" placeholder="github_pat_..." autocomplete="off"></div>
+    <div class="field"><label for="ghPin">잠금 PIN (4자리 이상, 권장) — 넣으면 토큰이 이 PIN으로 암호화돼 저장되고, 앱을 열 때마다 PIN을 묻습니다</label><input type="password" id="ghPin" inputmode="numeric" placeholder="PIN" autocomplete="off"></div>
+    <div class="field"><label for="ghRepo">데이터 레포 (status.json·control.json 위치 — 잔액이 보이니 비공개 레포 권장)</label><input type="text" id="ghRepo" placeholder="fafa2kk-stack/bit-office" autocomplete="off"></div>
+    <div class="controls"><button class="primary" id="btnSaveToken">저장하고 연결 확인</button><button class="ghost" id="btnLock" hidden>🔒 잠그기</button><button class="ghost" id="btnClearToken">토큰 지우기</button><button id="btnRefresh">상태 새로고침</button></div>
     <details><summary>아침 체크리스트</summary>
       <ol class="todo" id="todo">
         <li id="td1"><span class="tick"></span><span><b>바이낸스 모의(Demo) API 키</b> → demo.binance.com → API Management → Create API → PC <code>문서\crypto_backtest\.env</code> 에 BINANCE_API_KEY / BINANCE_API_SECRET (BOT_TESTNET=1, BOT_DEMO=1)</span></li>
@@ -736,13 +741,19 @@ async function loadFunding(){
 }
 
 // ------------------------------------------------------------ 실제 봇 관제실 (GitHub 경유)
-const GH = { token: '', control: null, status: null, netBlocked: false };
+const GH = { token: '', control: null, status: null, netBlocked: false, locked: false, repo: REPO, hasEnc: false };
 let ctlDirty = false;
-try { GH.token = localStorage.getItem('bitoffice.gh') || ''; } catch(e) {}
+try { GH.repo = localStorage.getItem('bitoffice.repo') || REPO; GH.hasEnc = !!localStorage.getItem('bitoffice.gh.enc'); GH.token = sessionStorage.getItem('bitoffice.gh.session') || (GH.hasEnc ? '' : (localStorage.getItem('bitoffice.gh') || '')); GH.locked = GH.hasEnc && !GH.token; } catch(e) {}
+// 토큰 암호화 (PIN → PBKDF2 20만회 → AES-GCM). 복호화된 토큰은 메모리/세션에만.
+const _te = new TextEncoder(), _td = new TextDecoder();
+const _b64 = u8 => btoa(Array.from(u8, c => String.fromCharCode(c)).join('')), _unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function pinKey(pin, salt){ const km = await crypto.subtle.importKey('raw', _te.encode(pin), 'PBKDF2', false, ['deriveKey']); return crypto.subtle.deriveKey({name:'PBKDF2', salt, iterations: 200000, hash:'SHA-256'}, km, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']); }
+async function sealToken(token, pin){ const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12)); const key = await pinKey(pin, salt); const ct = new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, _te.encode(token))); return JSON.stringify({v:1, salt:_b64(salt), iv:_b64(iv), ct:_b64(ct)}); }
+async function openToken(blob, pin){ const j = JSON.parse(blob); const key = await pinKey(pin, _unb64(j.salt)); return _td.decode(await crypto.subtle.decrypt({name:'AES-GCM', iv:_unb64(j.iv)}, key, _unb64(j.ct))); }
 const chip = (id, cls, txt) => { const e = document.getElementById(id); e.className = 'chip ' + cls; e.lastChild.textContent = txt; };
 const ghHeaders = () => ({Authorization:'Bearer '+GH.token, Accept:'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28'});
-async function ghGet(path){ const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}?ref=main&t=${Date.now()}`, {headers: ghHeaders(), cache:'no-store'}); if (!r.ok) throw new Error('GitHub ' + r.status); const j = await r.json(); return {sha: j.sha, data: JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\n/g,'')))))}; }
-async function ghPut(path, obj, sha, msg){ const content = btoa(unescape(encodeURIComponent(JSON.stringify(obj, null, 1)))); const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {method:'PUT', headers: Object.assign(ghHeaders(), {'Content-Type':'application/json'}), body: JSON.stringify({message: msg, content, sha})}); if (!r.ok) throw new Error('GitHub ' + r.status); return r.json(); }
+async function ghGet(path){ const r = await fetch(`https://api.github.com/repos/${GH.repo}/contents/${path}?ref=main&t=${Date.now()}`, {headers: ghHeaders(), cache:'no-store'}); if (!r.ok) throw new Error('GitHub ' + r.status); const j = await r.json(); return {sha: j.sha, data: JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\n/g,'')))))}; }
+async function ghPut(path, obj, sha, msg){ const content = btoa(unescape(encodeURIComponent(JSON.stringify(obj, null, 1)))); const r = await fetch(`https://api.github.com/repos/${GH.repo}/contents/${path}`, {method:'PUT', headers: Object.assign(ghHeaders(), {'Content-Type':'application/json'}), body: JSON.stringify({message: msg, content, sha})}); if (!r.ok) throw new Error('GitHub ' + r.status); return r.json(); }
 async function loadControl(){ if (!GH.token) return null; try { const {data} = await ghGet('control.json'); GH.control = data; chip('chipNet','ok','앱 ↔ GitHub 연결됨'); return data; } catch(e){ chip('chipNet','bad','GitHub 연결 실패 (' + e.message + ')'); if (e instanceof TypeError) GH.netBlocked = true; return null; } }
 async function patchControl(patch, msg){
   if (!GH.token) { setT('ctlMsg', '먼저 아래 "연결"에서 GitHub 토큰을 저장하세요.'); return false; }
@@ -752,7 +763,7 @@ async function patchControl(patch, msg){
 async function loadBotStatus(){
   let st = null;
   if (GH.token) { try { st = (await ghGet('status.json')).data; } catch(e) {} }
-  if (!st) { for (const u of ['status.json?t=' + Date.now(), `https://raw.githubusercontent.com/${REPO}/main/status.json?t=${Date.now()}`]) { try { const r = await fetch(u, {cache:'no-store'}); if (r.ok) { st = await r.json(); break; } } catch(e) { if (e instanceof TypeError && /^https?:/.test(location.protocol)) GH.netBlocked = true; } } }
+  if (!st) { for (const u of ['status.json?t=' + Date.now(), `https://raw.githubusercontent.com/${GH.repo}/main/status.json?t=${Date.now()}`]) { try { const r = await fetch(u, {cache:'no-store'}); if (r.ok) { st = await r.json(); break; } } catch(e) { if (e instanceof TypeError && /^https?:/.test(location.protocol)) GH.netBlocked = true; } } }
   if (st) GH.status = st;
   renderControl();
 }
@@ -778,7 +789,9 @@ function renderControl(){
     setT('bNext', st.next_run ? st.next_run.replace('T',' ').slice(5,16) + ' UTC' : '—'); setT('bTest', st.testnet===true ? (st.sandbox==='dry-run' ? '드라이런 (주문 안 보냄)' : '모의거래') : st.testnet===false ? '실계좌' : '—'); }
   const td = (id, ok) => document.getElementById(id).classList.toggle('done', !!ok);
   td('td1', st && st.time); td('td2', !!GH.token && st && st.time); td('td3', fresh); td('td4', ctlOn===true && botOn && fresh);
-  const f = document.getElementById('ghToken'); if (document.activeElement !== f && (!f.value || f.value.startsWith('••'))) f.value = GH.token ? '••••••••••' + GH.token.slice(-4) : '';
+  const f = document.getElementById('ghToken'); if (document.activeElement !== f && (!f.value || f.value.startsWith('••'))) f.value = GH.token ? '••••••••••' + GH.token.slice(-4) : (GH.locked ? '(잠김)' : '');
+  document.getElementById('lockBox').hidden = !GH.locked; document.getElementById('btnLock').hidden = !(GH.hasEnc && GH.token);
+  const rf = document.getElementById('ghRepo'); if (document.activeElement !== rf && !rf.value) rf.value = GH.repo;
   document.getElementById('netNote').hidden = !GH.netBlocked;
 }
 let pendingAction = null;
@@ -791,8 +804,22 @@ document.getElementById('btnFlat').onclick = () => askConfirm('전량 청산 후
 for (const b of document.querySelectorAll('#segVenue button')) b.onclick = () => { ctlDirty = true; for (const x of document.querySelectorAll('#segVenue button')) x.classList.toggle('on', x===b); };
 document.getElementById('ctlShort').onchange = () => { ctlDirty = true; };
 document.getElementById('btnSaveCtl').onclick = () => { const v = (document.querySelector('#segVenue button.on')||{}).dataset; const patch = {short_size: parseFloat(document.getElementById('ctlShort').value)}; if (v && v.v) patch.venue = v.v; if (NOSHORT(patch.venue)) patch.short_size = 0; patchControl(patch, '설정 변경' + (patch.venue ? ' (' + VENUE_KO[patch.venue] + ', 숏 ' + Math.round(patch.short_size*100) + '%)' : '')); };
-document.getElementById('btnSaveToken').onclick = async () => { const t = document.getElementById('ghToken').value.trim(); if (t && !t.startsWith('••')) { GH.token = t; try { localStorage.setItem('bitoffice.gh', t); } catch(e) {} } const ok = await loadControl(); setT('ctlMsg', ok ? '연결 확인됨. 이제 버튼이 control.json 을 바꿉니다.' : '연결 실패. 토큰과 권한(bit-office · Contents: Read and write)을 확인하세요.'); await loadBotStatus(); };
-document.getElementById('btnClearToken').onclick = () => { GH.token = ''; try { localStorage.removeItem('bitoffice.gh'); } catch(e) {} GH.control = null; chip('chipNet','','앱 ↔ GitHub 미연결'); document.getElementById('ghToken').value = ''; renderControl(); setT('ctlMsg', '토큰을 지웠습니다.'); };
+document.getElementById('btnSaveToken').onclick = async () => {
+  const t = document.getElementById('ghToken').value.trim(), pin = document.getElementById('ghPin').value.trim(), repo = (document.getElementById('ghRepo').value.trim() || REPO).replace(/^https?:\/\/github\.com\//, '').replace(/\/$/, '');
+  GH.repo = repo; try { localStorage.setItem('bitoffice.repo', repo); } catch(e) {}
+  if (t && !t.startsWith('••') && t !== '(잠김)') GH.token = t;
+  if (!GH.token) { setT('ctlMsg', '토큰을 입력하세요.'); return; }
+  if (pin && pin.length < 4) { setT('ctlMsg', 'PIN은 4자리 이상.'); return; }
+  try {
+    if (pin) { localStorage.setItem('bitoffice.gh.enc', await sealToken(GH.token, pin)); localStorage.removeItem('bitoffice.gh'); sessionStorage.setItem('bitoffice.gh.session', GH.token); GH.hasEnc = true; }
+    else { localStorage.setItem('bitoffice.gh', GH.token); localStorage.removeItem('bitoffice.gh.enc'); sessionStorage.removeItem('bitoffice.gh.session'); GH.hasEnc = false; }
+  } catch(e) {}
+  GH.locked = false; document.getElementById('ghPin').value = ''; document.getElementById('ghToken').value = '';
+  const ok = await loadControl(); setT('ctlMsg', ok ? ('연결 확인됨 (' + repo + '). ' + (pin ? 'PIN으로 암호화 저장됨.' : 'PIN 없이 저장됨 — 폰 잠금은 꼭 켜두세요.')) : '연결 실패. 토큰과 권한(' + repo + ' · Contents: Read and write)을 확인하세요.'); await loadBotStatus(); };
+document.getElementById('btnUnlock').onclick = async () => { const pin = document.getElementById('unlockPin').value.trim(); try { GH.token = await openToken(localStorage.getItem('bitoffice.gh.enc'), pin); sessionStorage.setItem('bitoffice.gh.session', GH.token); GH.locked = false; document.getElementById('unlockPin').value = ''; setT('ctlMsg', '잠금 해제됨.'); await loadControl(); await loadBotStatus(); } catch(e) { setT('ctlMsg', 'PIN이 틀렸어요.'); } };
+document.getElementById('unlockPin').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btnUnlock').click(); });
+document.getElementById('btnLock').onclick = () => { GH.token = ''; GH.locked = true; try { sessionStorage.removeItem('bitoffice.gh.session'); } catch(e) {} GH.control = null; chip('chipNet','','앱 ↔ GitHub 잠김'); renderControl(); setT('ctlMsg', '잠갔어요. 버튼을 쓰려면 PIN으로 풀어야 합니다.'); };
+document.getElementById('btnClearToken').onclick = () => { GH.token = ''; GH.locked = false; GH.hasEnc = false; try { localStorage.removeItem('bitoffice.gh'); localStorage.removeItem('bitoffice.gh.enc'); sessionStorage.removeItem('bitoffice.gh.session'); } catch(e) {} GH.control = null; chip('chipNet','','앱 ↔ GitHub 미연결'); document.getElementById('ghToken').value = ''; renderControl(); setT('ctlMsg', '토큰을 지웠습니다.'); };
 document.getElementById('btnRefresh').onclick = async () => { await loadControl(); await loadBotStatus(); setT('ctlMsg', '새로고침 ' + new Date().toLocaleTimeString('ko-KR')); };
 
 // ------------------------------------------------------------ AI debate (claude.ai 아티팩트 안에서만)
