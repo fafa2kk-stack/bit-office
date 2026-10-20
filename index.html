@@ -7,7 +7,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-ZSt033NS+GwiBxmKBtWnY+c87AjkH7zYXuPNVmxBJvs='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://data-api.binance.vision https://api.binance.com https://fapi.binance.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-YD/ujbOw288+g7Snsnc4cjkRF7Oc8CIeNKykB3KVIDU='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://data-api.binance.vision https://api.binance.com https://fapi.binance.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <title>비트 오피스</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="referrer" content="no-referrer">
@@ -186,7 +186,7 @@ select{accent-color:var(--accent);background:var(--panel2);color:var(--ink);bord
 <div class="wrap">
 <header>
   <div class="brand">
-    <div class="logo">BIT OFFICE<small>직원 13명이 회의하고 규칙으로 결재하는 비트코인 사무실 · v3.4</small></div>
+    <div class="logo">BIT OFFICE<small>직원 13명이 회의하고 규칙으로 결재하는 비트코인 사무실 · v3.5</small></div>
     <button id="btnInstall" hidden style="font-size:12.5px;padding:8px 12px;border-radius:999px;background:linear-gradient(180deg,var(--accent2),var(--accent));color:var(--accent-ink);border:0">📲 앱으로 설치</button><div class="ticker"><canvas id="spark" width="144" height="52"></canvas><span><span class="px" id="tkPx">—</span> <span class="chg" id="tkChg">—</span><br><span class="note" id="tkDate">—</span></span></div>
   </div>
   <div class="banner" id="iosHint" hidden style="margin:8px 0 0;font-size:12px;padding:8px 10px">아이폰: 아래 공유 버튼(⬆) → 목록 아래로 → <b>홈 화면에 추가</b> 하면 앱처럼 열려요. <button class="ghost" id="iosHintClose" style="padding:2px 8px;font-size:11px;margin-left:6px">닫기</button></div>
@@ -202,7 +202,7 @@ select{accent-color:var(--accent);background:var(--panel2);color:var(--ink);bord
 <section id="office">
   <div class="office" id="officeBox">
     <canvas id="officeCv" width="640" height="360"></canvas>
-    <div class="stamp" id="stamp">REPLAY</div><div class="stamp" style="right:auto;left:8px;opacity:.7">v3.4</div>
+    <div class="stamp" id="stamp">REPLAY</div><div class="stamp" style="right:auto;left:8px;opacity:.7">v3.5</div>
   </div>
   <div class="pipe" id="pipe"><div data-stage="0" data-n="1">시황 보고</div><div data-stage="1" data-n="2">리서치 토론</div><div data-stage="2" data-n="3">리스크·집행</div><div data-stage="3" data-n="4">대표 결재</div></div>
   <div class="statusline"><span id="flowStatus">회의 준비 중</span><span><b id="flowVerdict">—</b></span></div>
@@ -789,7 +789,7 @@ function renderControl(){
     setT('bNext', st.next_run ? st.next_run.replace('T',' ').slice(5,16) + ' UTC' : '—'); setT('bTest', st.testnet===true ? (st.sandbox==='dry-run' ? '드라이런 (주문 안 보냄)' : '모의거래') : st.testnet===false ? '실계좌' : '—'); }
   const td = (id, ok) => document.getElementById(id).classList.toggle('done', !!ok);
   td('td1', st && st.time); td('td2', !!GH.token && st && st.time); td('td3', fresh); td('td4', ctlOn===true && botOn && fresh);
-  const f = document.getElementById('ghToken'); if (document.activeElement !== f && (!f.value || f.value.startsWith('••'))) f.value = GH.token ? '••••••••••' + GH.token.slice(-4) : (GH.locked ? '(잠김)' : '');
+  const f = document.getElementById('ghToken'); if (document.activeElement !== f && (!f.value || f.value.startsWith('••') || f.value === '(잠김)')) f.value = GH.token ? '••••••••••' + GH.token.slice(-4) : (GH.locked ? '(잠김)' : '');
   document.getElementById('lockBox').hidden = !GH.locked; document.getElementById('btnLock').hidden = !(GH.hasEnc && GH.token);
   const rf = document.getElementById('ghRepo'); if (document.activeElement !== rf && !rf.value) rf.value = GH.repo;
   document.getElementById('netNote').hidden = !GH.netBlocked;
