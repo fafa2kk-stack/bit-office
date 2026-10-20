@@ -151,7 +151,8 @@ select{accent-color:var(--accent);background:var(--panel2);color:var(--ink);bord
       <div class="stat"><div class="k">가디언</div><div class="v" id="bGuard">—</div></div>
       <div class="stat"><div class="k">네트워크</div><div class="v" id="bNet">—</div></div>
     </div>
-    <div class="note" style="margin-top:8px">PC의 봇이 매 사이클 끝에 올리는 status.json 입니다. 비상 정지는 레포의 control.json 에서 "kill": true 로.</div>
+    <div class="controls"><a id="btnControl" href="#" target="_blank" rel="noopener" style="text-decoration:none"><button type="button">⚙ 봇 설정 열기 (control.json)</button></a></div>
+    <div class="note" style="margin-top:8px">PC의 봇이 매 사이클 끝에 올리는 status.json 입니다. 설정 열기 → "kill": true 로 비상 정지, "short_size" 로 숏 비율 변경. 봇이 다음 사이클에 읽어요.</div>
   </div>
 
   <div class="office" id="officeBox">
@@ -217,7 +218,7 @@ select{accent-color:var(--accent);background:var(--panel2);color:var(--ink);bord
       <div class="rule"><h3>리스크 위원회</h3><p>당일 −8% 또는 고점 대비 −45%면 전량 청산 후 정지. 레버리지 1배 고정.</p><div class="now" id="rRisk">—</div></div>
     </div>
     <div class="set" style="margin-top:12px">
-      <label>거래 방식 <select id="selVenue"><option value="futures" selected>선물 (롱+숏, 펀딩 있음)</option><option value="spot">현물 (롱만, 펀딩 없음)</option></select></label>
+      <label>거래 방식 <select id="selVenue"><option value="futures" selected>선물 (롱+숏, 펀딩 있음)</option><option value="spot">현물 (롱만, 펀딩 없음)</option><option value="hybrid">하이브리드 (롱=현물, 숏=선물)</option></select></label>
       <label>숏 사이즈 <select id="selShort"><option value="0">없음</option><option value="0.5" selected>50%</option><option value="1">100%</option></select></label>
       <label>재생 속도 <select id="selSpeed"><option value="1200">느림</option><option value="500" selected>보통</option><option value="150">빠름</option></select></label>
       <span class="note">바꾸면 모의 계좌가 처음부터 다시 돕니다.</span>
@@ -249,7 +250,8 @@ let FUND = {};                                                                  
 for (let k=0;k<FSNAP.v.length;k++) FUND[FSNAP.start+k] = FSNAP.v[k]/1e6;
 let EXTRA = null;                                                               // 라이브 전용: {oi, ls, fundingNow, premium}
 const MA = 200, BRK = 20, HOLD = 12, FIRST = MA;
-const VENUE = { futures: {fee:0.0005, slip:0.0003, fund:0.0003, label:'선물'}, spot: {fee:0.0010, slip:0.0003, fund:0, label:'현물'} };
+const VENUE = { futures: {fee:0.0005, slip:0.0003, fund:0.0003, label:'선물'}, spot: {fee:0.0010, slip:0.0003, fund:0, label:'현물'}, hybrid: {fee:0.0010, slip:0.0003, fund:0, label:'하이브리드(롱 현물·숏 선물)'} };
+const legCost = (side, reduceOnly) => { if (S.venue==='hybrid'){ const shortLeg = (side==='sell' && !reduceOnly && S.qty<=0) || (side==='buy' && S.qty<0); if (shortLeg) return VENUE.futures; } return cost(); };
 const START_EQ = 10000;
 const cost = () => VENUE[S.venue] || VENUE.futures;
 const fmtDate = t => new Date(t).toISOString().slice(0,10);
@@ -293,8 +295,8 @@ const equity = () => S.cash + S.qty * priceAt(S.i);
 function save(){ try{ localStorage.setItem('bitoffice.v2', JSON.stringify({i:S.i,cash:S.cash,qty:S.qty,entry:S.entry,peak:S.peak,dayStart:S.dayStart,halted:S.halted,journal:S.journal.slice(-400),shortSize:S.shortSize,speed:S.speed,bhStart:S.bhStart,venue:S.venue,date:D[S.i]?D[S.i].t:null})); }catch(e){} }
 function load(){ try{ const j = JSON.parse(localStorage.getItem('bitoffice.v2')||'null'); if (j && j.i>=FIRST && j.i<N){ Object.assign(S, j); return true; } }catch(e){} return false; }
 function reset(){ S.i = FIRST; S.cash = START_EQ; S.qty = 0; S.entry = null; S.peak = START_EQ; S.dayStart = START_EQ; S.halted = null; S.journal = []; S.log = []; S.bhStart = priceAt(FIRST); decide(true); save(); renderAll(); runMeeting(); }
-function trade(side, qty){
-  const C = cost(); const px = priceAt(S.i) * (side==='buy' ? 1+C.slip : 1-C.slip);
+function trade(side, qty, reduceOnly){
+  const C = legCost(side, reduceOnly); const px = priceAt(S.i) * (side==='buy' ? 1+C.slip : 1-C.slip);
   const q = side==='buy' ? qty : -qty;
   S.cash -= q*px + Math.abs(q)*px*C.fee;
   const nq = +(S.qty + q).toFixed(6);
@@ -314,7 +316,7 @@ function decide(first){
   const tq = target * eq / px, diff = tq - S.qty;
   if (Math.abs(diff)*px > eq*0.02) {
     const before = Math.sign(S.qty), flips = S.qty!==0 && tq!==0 && (S.qty>0)!==(tq>0);
-    if (flips || (tq===0 && S.qty!==0)) orders.push(trade(S.qty>0?'sell':'buy', Math.abs(S.qty)));
+    if (flips || (tq===0 && S.qty!==0)) orders.push(trade(S.qty>0?'sell':'buy', Math.abs(S.qty), true));
     const rem = tq - S.qty;
     if (Math.abs(rem)*px > 5) orders.push(trade(rem>0?'buy':'sell', Math.abs(rem)));
     const after = Math.sign(S.qty);
@@ -326,7 +328,7 @@ function decide(first){
   S.dayStart = equity();
   return rec;
 }
-function advanceDay(){ S.i += 1; if (S.qty !== 0) S.cash -= Math.abs(S.qty) * priceAt(S.i) * cost().fund; return decide(false); }
+function advanceDay(){ S.i += 1; const f = S.venue==='hybrid' ? (S.qty<0 ? VENUE.futures.fund : 0) : cost().fund; if (S.qty !== 0) S.cash -= Math.abs(S.qty) * priceAt(S.i) * f; return decide(false); }
 function step(){ if (S.i >= N-1) { S.auto=false; renderAll(); return false; } const rec = advanceDay(); save(); renderAll(); if (S.auto) { quickMeeting(rec); } else runMeeting(); return true; }
 
 // ------------------------------------------------------------ staff
@@ -383,7 +385,7 @@ function lines(rec){
   L.risk = rec.guardian==='승인' ? `당일 ${fmtPct(rec.dayPnl)}, 고점 대비 ${fmtPct(rec.dd)}. 한도(−8%/−45%) 안. 레버리지 1배 확인. 승인.` : rec.guardian;
   const tgt = rec.target, eqv = rec.eq;
   L.sizer = tgt===0 ? `목표 현금 100%.${S.venue==='spot'&&rec.sig<0?' (현물이라 숏 대신 현금)':''}` : `자산 $${fmtUsd(eqv)} → 목표 ${tgt>0?'롱 100%':`숏 ${Math.round(Math.abs(tgt)*100)}%`} = ${(Math.abs(tgt)*eqv/rec.px).toFixed(3)} BTC. 1배.`;
-  L.trader = rec.orders.length ? rec.orders.map(o => `${o.side==='buy'?'매수':'매도'} ${o.qty.toFixed(3)} BTC @${fmtUsd(o.px)}`).join(', ') + ` 시장가 체결 (${cost().label}).` : `신규 주문 없음. 포지션 유지.`;
+  L.trader = rec.orders.length ? rec.orders.map(o => `${o.side==='buy'?'매수':'매도'} ${o.qty.toFixed(3)} BTC @${fmtUsd(o.px)}`).join(', ') + ` 시장가 체결 (${S.venue==='hybrid' ? (rec.target<0||S.qty<0 ? '선물 지갑' : '현물 지갑') : cost().label}).` : `신규 주문 없음. 포지션 유지.`;
   L.ceo = rec.action==='hold' ? (rec.sig>0?'결재: 롱 유지. 내일 다시.':rec.sig<0?'결재: 숏 유지.':'결재: 현금 유지. 오늘은 쉬어.') : rec.action==='halted' ? '정지 상태. 사람이 풀기 전엔 안 움직인다.' : rec.action==='FLATTEN+HALT' ? '결재: 전량 청산, 비상 정지.' : `결재: ${rec.action}. 집행해.`;
   return L;
 }
@@ -547,7 +549,7 @@ function renderAll(){
   setV('sPos', S.qty>0 ? `롱 ${S.qty.toFixed(3)}` : S.qty<0 ? `숏 ${Math.abs(S.qty).toFixed(3)}` : '현금', S.qty>0?1:S.qty<0?-1:0, true);
   const dayP = (S.journal.length ? rec.dayPnl : 0); setV('sDay', fmtPct(dayP), dayP);
   const mdd = minDD(); setV('sMdd', fmtPct(mdd), mdd<0?-1:0); setV('sBh', fmtPct(bh), bh);
-  setT('acctSub', `${cost().label} · 10,000 USDT 시작 · 1배 · 수수료 ${(cost().fee*100).toFixed(2)}%+슬리피지 ${(cost().slip*100).toFixed(2)}%/편도${cost().fund?' · 펀딩 0.03%/일':' · 펀딩 없음'}`);
+  setT('acctSub', S.venue==='hybrid' ? '하이브리드 · 10,000 USDT · 1배 · 롱: 현물 0.1%, 숏: 선물 0.05%+펀딩' : `${cost().label} · 10,000 USDT 시작 · 1배 · 수수료 ${(cost().fee*100).toFixed(2)}%+슬리피지 ${(cost().slip*100).toFixed(2)}%/편도${cost().fund?' · 펀딩 0.03%/일':' · 펀딩 없음'}`);
   document.getElementById('btnStep').disabled = i>=N-1; document.getElementById('btnLatest').disabled = i>=N-1;
   document.getElementById('btnAuto').textContent = S.auto ? '⏸ 일시정지' : '⏩ 자동 재생';
   setT('rLong', `지금: 종가 ${fmtUsd(rec.close)} vs MA200 ${fmtUsd(rec.ma)} → ${rec.close>rec.ma?'롱':'현금'}`);
@@ -628,6 +630,7 @@ async function loadBotStatus(){
     const r = await fetch('status.json?t=' + Date.now(), {cache:'no-store'}); if (!r.ok) return;
     const st = await r.json(); if (!st || !st.time) return;
     const p = document.getElementById('botPanel'); p.hidden = false;
+    if (st.repo) document.getElementById('btnControl').href = `https://github.com/${st.repo}/edit/main/control.json`;
     setT('botWhen', st.time.replace('T',' ').slice(0,16) + ' UTC' + (st.testnet===true ? ' · 테스트넷' : st.testnet===false ? ' · 실계좌' : ''));
     setT('bVenue', st.venue==='spot' ? '현물' : '선물'); setT('bEq', st.equity!=null ? '$'+fmtUsd(st.equity) : '—');
     setV('bPos', st.position>0 ? `롱 ${(+st.position).toFixed(3)}` : st.position<0 ? `숏 ${Math.abs(+st.position).toFixed(3)}` : '현금', st.position>0?1:st.position<0?-1:0, true);

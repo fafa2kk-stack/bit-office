@@ -1,1 +1,6 @@
-{"kill": false, "note": "kill 을 true 로 바꾸면 PC 봇이 다음 사이클부터 거래를 멈춥니다"}
+{
+  "kill": false,
+  "short_size": 0.5,
+  "venue": "futures",
+  "note": "kill: true 면 PC 봇이 다음 사이클부터 거래 중단. short_size: 숏 비율(0~1). venue 는 .env 의 BOT_VENUE 를 바꾸고 봇을 재시작해야 적용 (spot | futures | hybrid)."
+}
