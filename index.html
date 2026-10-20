@@ -273,7 +273,7 @@ select{accent-color:var(--accent);background:var(--panel2);color:var(--ink);bord
     </div>
     <div class="confirm" id="confirmBox" hidden><span id="confirmText">—</span><button class="primary" id="confirmYes">확인</button><button class="ghost" id="confirmNo">취소</button></div>
     <div class="row"><span class="note">거래 방식</span>
-      <div class="seg" id="segVenue"><button data-v="spot">현물</button><button data-v="futures">선물</button><button data-v="hybrid">하이브리드</button></div>
+      <div class="seg" id="segVenue"><button data-v="hybrid">하이브리드</button><button data-v="futures">선물</button><button data-v="spot">현물</button><button data-v="upbit">업비트</button></div>
       <label>숏 비율 <select id="ctlShort"><option value="0">없음</option><option value="0.3">30%</option><option value="0.5" selected>50%</option><option value="1">100%</option></select></label>
       <button id="btnSaveCtl">설정 저장</button>
     </div>
@@ -310,7 +310,7 @@ select{accent-color:var(--accent);background:var(--panel2);color:var(--ink);bord
       <div class="rule"><h3>리스크 위원회</h3><p>당일 −8% 또는 고점 대비 −45%면 전량 청산 후 정지. 레버리지 1배 고정.</p><div class="now" id="rRisk">—</div></div>
     </div>
     <div class="row">
-      <label>리플레이 거래 방식 <select id="selVenue"><option value="futures" selected>선물 (롱+숏, 펀딩 있음)</option><option value="spot">현물 (롱만, 펀딩 없음)</option><option value="hybrid">하이브리드 (롱=현물, 숏=선물)</option></select></label>
+      <label>리플레이 거래 방식 <select id="selVenue"><option value="futures" selected>선물 (롱+숏, 펀딩 있음)</option><option value="spot">현물 (롱만, 펀딩 없음)</option><option value="hybrid">하이브리드 (롱=현물, 숏=선물)</option><option value="upbit">업비트 (원화 롱만, 수수료 0.05%)</option></select></label>
       <label>숏 사이즈 <select id="selShort"><option value="0">없음</option><option value="0.5" selected>50%</option><option value="1">100%</option></select></label>
       <label>재생 속도 <select id="selSpeed"><option value="1200">느림</option><option value="500" selected>보통</option><option value="150">빠름</option></select></label>
       <span class="note">바꾸면 모의 계좌가 처음부터 다시 돕니다.</span>
@@ -342,8 +342,9 @@ let N = D.length, LIVE = false;
 let FUND = {}; for (let k=0;k<FSNAP.v.length;k++) FUND[FSNAP.start+k] = FSNAP.v[k]/1e6;
 let EXTRA = null;
 const MA = 200, BRK = 20, HOLD = 12, FIRST = MA;
-const VENUE = { futures: {fee:0.0005, slip:0.0003, fund:0.0003, label:'선물'}, spot: {fee:0.0010, slip:0.0003, fund:0, label:'현물'}, hybrid: {fee:0.0010, slip:0.0003, fund:0, label:'하이브리드'} };
-const VENUE_KO = {spot:'현물', futures:'선물', hybrid:'하이브리드'};
+const VENUE = { futures: {fee:0.0005, slip:0.0003, fund:0.0003, label:'선물'}, spot: {fee:0.0010, slip:0.0003, fund:0, label:'현물'}, hybrid: {fee:0.0010, slip:0.0003, fund:0, label:'하이브리드'}, upbit: {fee:0.0005, slip:0.0003, fund:0, label:'업비트'} };
+const NOSHORT = v => v==='spot' || v==='upbit';
+const VENUE_KO = {spot:'현물', futures:'선물', hybrid:'하이브리드', upbit:'업비트'};
 const START_EQ = 10000;
 const cost = () => VENUE[S.venue] || VENUE.futures;
 const legCost = (side, reduceOnly) => { if (S.venue==='hybrid'){ const shortLeg = (side==='sell' && !reduceOnly && S.qty<=0) || (side==='buy' && S.qty<0); if (shortLeg) return VENUE.futures; } return cost(); };
@@ -398,7 +399,7 @@ function decide(first){
   let action = 'hold', guardian = '승인', orders = [];
   if (eq > S.peak) S.peak = eq;
   const dayPnl = eq / S.dayStart - 1, dd = eq / S.peak - 1;
-  let target = sig>0 ? 1 : sig<0 ? -(S.venue==='spot' ? 0 : S.shortSize) : 0;
+  let target = sig>0 ? 1 : sig<0 ? -(NOSHORT(S.venue) ? 0 : S.shortSize) : 0;
   if (S.halted) { guardian = '정지 중: ' + S.halted; target = 0; action = 'halted'; }
   else if (dayPnl < -0.08) { S.halted = `당일 ${fmtPct(dayPnl)} (한도 −8%)`; guardian = '한도 초과 → 전량 청산 + 정지'; target = 0; action = 'FLATTEN+HALT'; }
   else if (dd < -0.45) { S.halted = `고점 대비 ${fmtPct(dd)} (한도 −45%)`; guardian = '한도 초과 → 전량 청산 + 정지'; target = 0; action = 'FLATTEN+HALT'; }
@@ -468,7 +469,7 @@ function lines(rec){
   L.short = !rec.bear ? `상승 레짐이라 숏 검토 종료.` : rec.hold>0 ? (rec.hold===HOLD ? `20일 저점 ${fmtUsd(rec.lo)} 이탈 확인. 숏 신호 발령, 12일 보유.` : `숏 보유 ${HOLD-rec.hold+1}일째, ${rec.hold-1}일 남음.`) : `하락 레짐. 20일 저점 ${fmtUsd(rec.lo)}까지 ${fmtPct(m.loGap)}. 이탈 없음, 대기.`;
   L.risk = rec.guardian==='승인' ? `당일 ${fmtPct(rec.dayPnl)}, 고점 대비 ${fmtPct(rec.dd)}. 한도(−8%/−45%) 안. 레버리지 1배 확인. 승인.` : rec.guardian;
   const tgt = rec.target, eqv = rec.eq;
-  L.sizer = tgt===0 ? `목표 현금 100%.${S.venue==='spot'&&rec.sig<0?' (현물이라 숏 대신 현금)':''}` : `자산 $${fmtUsd(eqv)} → 목표 ${tgt>0?'롱 100%':`숏 ${Math.round(Math.abs(tgt)*100)}%`} = ${(Math.abs(tgt)*eqv/rec.px).toFixed(3)} BTC. 1배.`;
+  L.sizer = tgt===0 ? `목표 현금 100%.${NOSHORT(S.venue)&&rec.sig<0?' (현물이라 숏 대신 현금)':''}` : `자산 $${fmtUsd(eqv)} → 목표 ${tgt>0?'롱 100%':`숏 ${Math.round(Math.abs(tgt)*100)}%`} = ${(Math.abs(tgt)*eqv/rec.px).toFixed(3)} BTC. 1배.`;
   L.trader = rec.orders.length ? rec.orders.map(o => `${o.side==='buy'?'매수':'매도'} ${o.qty.toFixed(3)} BTC @${fmtUsd(o.px)}`).join(', ') + ` 시장가 체결 (${S.venue==='hybrid' ? (rec.target<0||S.qty<0 ? '선물 지갑' : '현물 지갑') : cost().label}).` : `신규 주문 없음. 포지션 유지.`;
   L.ceo = rec.action==='hold' ? (rec.sig>0?'결재: 롱 유지. 내일 다시.':rec.sig<0?'결재: 숏 유지.':'결재: 현금 유지. 오늘은 쉬어.') : rec.action==='halted' ? '정지 상태. 사람이 풀기 전엔 안 움직인다.' : rec.action==='FLATTEN+HALT' ? '결재: 전량 청산, 비상 정지.' : `결재: ${rec.action}. 집행해.`;
   return L;
@@ -657,7 +658,7 @@ function renderAll(){
   document.getElementById('tkDate').textContent = fmtDate(D[i].t) + (i===N-1 ? ' (최신)' : '');
   sparkline('spark', D.slice(Math.max(0,i-29), i+1).map(d=>d.c), chg>=0?'#48d17f':'#f0607a');
   const st = document.getElementById('stamp'); st.textContent = (i===N-1 ? (LIVE ? 'LIVE ' : 'LATEST ') : 'REPLAY ') + fmtDate(D[i].t); st.classList.toggle('live', i===N-1);
-  const v = document.getElementById('verdict'), eff = (S.venue==='spot' && rec.sig<0) ? 0 : rec.sig;
+  const v = document.getElementById('verdict'), eff = (NOSHORT(S.venue) && rec.sig<0) ? 0 : rec.sig;
   v.className = 'verdict ' + (S.halted ? 'halt' : eff>0 ? 'long' : eff<0 ? 'short' : 'flat');
   v.innerHTML = `<span class="arrow">${S.halted?'⛔':eff>0?'▲':eff<0?'▼':'■'}</span><div class="big">${S.halted ? '정지' : eff>0 ? '롱' : eff<0 ? '숏' : '현금'}</div><small>${rec.action==='hold'?'유지':rec.action}</small>`;
   document.getElementById('decDate').textContent = fmtDate(D[i].t) + ' 종가 기준';
@@ -680,7 +681,7 @@ function renderAll(){
   setT('dataEnd', fmtDate(D[N-1].t)); setT('dataSrc', LIVE ? '실시간, 매일 갱신' : '스냅샷');
   drawChart(i);
 }
-function buildRec(i){ const c=D[i].c; return {i, date:fmtDate(D[i].t), close:c, ma:ma[i], lo:lo20[i], sig:SIG.pos[i], hold:SIG.hold[i], bear:c<ma[i], action:'hold', guardian:'승인', eq:equity(), pos:S.qty, px:priceAt(i), dayPnl:0, dd:equity()/S.peak-1, target: SIG.pos[i]>0?1:SIG.pos[i]<0?-(S.venue==='spot'?0:S.shortSize):0, orders:[]}; }
+function buildRec(i){ const c=D[i].c; return {i, date:fmtDate(D[i].t), close:c, ma:ma[i], lo:lo20[i], sig:SIG.pos[i], hold:SIG.hold[i], bear:c<ma[i], action:'hold', guardian:'승인', eq:equity(), pos:S.qty, px:priceAt(i), dayPnl:0, dd:equity()/S.peak-1, target: SIG.pos[i]>0?1:SIG.pos[i]<0?-(NOSHORT(S.venue)?0:S.shortSize):0, orders:[]}; }
 function minDD(){ let p=START_EQ, m=0; for (const r of S.journal){ p=Math.max(p,r.eq); m=Math.min(m, r.eq/p-1); } return m; }
 function setV(id, txt, sign, posLabel){ const e=document.getElementById(id); e.textContent=txt; e.className='v '+(sign>0?'pos':sign<0?'neg':posLabel?'flatc':''); }
 function setT(id, txt){ const e = document.getElementById(id); if (e) e.textContent = txt; }
@@ -770,11 +771,11 @@ function renderControl(){
   else chip('chipTrading','warn','거래 꺼짐 (대기)');
   const venue = (c && c.venue) || (st && st.venue) || ''; chip('chipVenue', '', '거래 방식: ' + (VENUE_KO[venue] || venue || '—'));
   if (!ctlDirty){ for (const b of document.querySelectorAll('#segVenue button')) b.classList.toggle('on', b.dataset.v === venue); if (c && c.short_size != null) document.getElementById('ctlShort').value = String(c.short_size); }
-  if (st && st.time){ setT('bEq', st.equity!=null ? '$'+fmtUsd(st.equity) : '—');
+  if (st && st.time){ setT('bEq', st.equity!=null ? (st.quote==='KRW' ? '₩' : '$')+fmtUsd(st.equity) : '—');
     setV('bPos', st.position>0 ? `롱 ${(+st.position).toFixed(3)}` : st.position<0 ? `숏 ${Math.abs(+st.position).toFixed(3)}` : st.position===0 ? '현금' : '—', st.position>0?1:st.position<0?-1:0, true);
     const nOrd = (st.orders||[]).length; setT('bAct', (ACTION_KO[st.action]||st.action||'—') + (nOrd ? ` · 주문 ${nOrd}건` : '') + (st.signal!=null ? ` (${st.signal>0?'롱':st.signal<0?'숏':'현금'})` : ''));
     setV('bGuard', st.guardian||'—', (st.guardian||'').startsWith('ok') ? 1 : st.guardian ? -1 : 0);
-    setT('bNext', st.next_run ? st.next_run.replace('T',' ').slice(5,16) + ' UTC' : '—'); setT('bTest', st.testnet===true ? '테스트넷' : st.testnet===false ? '실계좌' : '—'); }
+    setT('bNext', st.next_run ? st.next_run.replace('T',' ').slice(5,16) + ' UTC' : '—'); setT('bTest', st.testnet===true ? (st.sandbox==='dry-run' ? '드라이런 (주문 안 보냄)' : '모의거래') : st.testnet===false ? '실계좌' : '—'); }
   const td = (id, ok) => document.getElementById(id).classList.toggle('done', !!ok);
   td('td1', st && st.time); td('td2', !!GH.token && st && st.time); td('td3', fresh); td('td4', ctlOn===true && botOn && fresh);
   const f = document.getElementById('ghToken'); if (document.activeElement !== f && (!f.value || f.value.startsWith('••'))) f.value = GH.token ? '••••••••••' + GH.token.slice(-4) : '';
@@ -784,12 +785,12 @@ let pendingAction = null;
 function askConfirm(text, fn){ pendingAction = fn; setT('confirmText', text); document.getElementById('confirmBox').hidden = false; }
 document.getElementById('confirmYes').onclick = async () => { document.getElementById('confirmBox').hidden = true; if (pendingAction) await pendingAction(); pendingAction = null; };
 document.getElementById('confirmNo').onclick = () => { document.getElementById('confirmBox').hidden = true; pendingAction = null; };
-document.getElementById('btnStart').onclick = () => askConfirm('거래를 시작할까요? 봇이 다음 판정부터 규칙대로 주문을 냅니다 (거래 방식: ' + (VENUE_KO[(GH.control||{}).venue] || '봇 .env 기본값') + ').', () => patchControl({trading:'on', kill:false, flatten:false}, '거래 시작'));
+document.getElementById('btnStart').onclick = () => askConfirm('거래를 시작할까요? 봇이 다음 판정부터 규칙대로 주문을 냅니다 (거래 방식: ' + (VENUE_KO[(GH.control||{}).venue] || '봇 .env 기본값') + '). 업비트/모의 설정이면 그 범위에서만.', () => patchControl({trading:'on', kill:false, flatten:false}, '거래 시작'));
 document.getElementById('btnStop').onclick = () => askConfirm('신규 주문을 멈출까요? 지금 포지션은 그대로 남습니다.', () => patchControl({trading:'off', flatten:false}, '거래 중지'));
 document.getElementById('btnFlat').onclick = () => askConfirm('전량 청산 후 중지할까요? 봇이 10분 안에 포지션을 시장가로 정리하고 거래를 끕니다.', () => patchControl({flatten:true, trading:'off'}, '전량 청산 후 중지'));
 for (const b of document.querySelectorAll('#segVenue button')) b.onclick = () => { ctlDirty = true; for (const x of document.querySelectorAll('#segVenue button')) x.classList.toggle('on', x===b); };
 document.getElementById('ctlShort').onchange = () => { ctlDirty = true; };
-document.getElementById('btnSaveCtl').onclick = () => { const v = (document.querySelector('#segVenue button.on')||{}).dataset; const patch = {short_size: parseFloat(document.getElementById('ctlShort').value)}; if (v && v.v) patch.venue = v.v; if (patch.venue==='spot') patch.short_size = 0; patchControl(patch, '설정 변경' + (patch.venue ? ' (' + VENUE_KO[patch.venue] + ', 숏 ' + Math.round(patch.short_size*100) + '%)' : '')); };
+document.getElementById('btnSaveCtl').onclick = () => { const v = (document.querySelector('#segVenue button.on')||{}).dataset; const patch = {short_size: parseFloat(document.getElementById('ctlShort').value)}; if (v && v.v) patch.venue = v.v; if (NOSHORT(patch.venue)) patch.short_size = 0; patchControl(patch, '설정 변경' + (patch.venue ? ' (' + VENUE_KO[patch.venue] + ', 숏 ' + Math.round(patch.short_size*100) + '%)' : '')); };
 document.getElementById('btnSaveToken').onclick = async () => { const t = document.getElementById('ghToken').value.trim(); if (t && !t.startsWith('••')) { GH.token = t; try { localStorage.setItem('bitoffice.gh', t); } catch(e) {} } const ok = await loadControl(); setT('ctlMsg', ok ? '연결 확인됨. 이제 버튼이 control.json 을 바꿉니다.' : '연결 실패. 토큰과 권한(bit-office · Contents: Read and write)을 확인하세요.'); await loadBotStatus(); };
 document.getElementById('btnClearToken').onclick = () => { GH.token = ''; try { localStorage.removeItem('bitoffice.gh'); } catch(e) {} GH.control = null; chip('chipNet','','앱 ↔ GitHub 미연결'); document.getElementById('ghToken').value = ''; renderControl(); setT('ctlMsg', '토큰을 지웠습니다.'); };
 document.getElementById('btnRefresh').onclick = async () => { await loadControl(); await loadBotStatus(); setT('ctlMsg', '새로고침 ' + new Date().toLocaleTimeString('ko-KR')); };
@@ -832,7 +833,7 @@ document.getElementById('btnLatest').onclick = () => { S.auto=false; while (S.i 
 document.getElementById('btnReplayMeeting').onclick = () => { S.auto=false; runMeeting(); };
 document.getElementById('btnReset').onclick = () => { S.auto=false; reset(); };
 document.getElementById('selShort').onchange = e => { S.shortSize = parseFloat(e.target.value); reset(); };
-document.getElementById('selVenue').onchange = e => { S.venue = e.target.value; document.getElementById('selShort').disabled = S.venue==='spot'; reset(); };
+document.getElementById('selVenue').onchange = e => { S.venue = e.target.value; document.getElementById('selShort').disabled = NOSHORT(S.venue); reset(); };
 document.getElementById('selSpeed').onchange = e => { S.speed = parseInt(e.target.value,10); save(); };
 { const g = document.getElementById('staffGrid'); for (const s of STAFF){ const d = document.createElement('div'); d.appendChild(portrait(s)); const t = document.createElement('div'); t.innerHTML = `<span class="dept ${s.dept}">${DEPT[s.dept]}</span><b>${s.name}</b><span>${s.role}</span>`; d.appendChild(t); g.appendChild(d); } }
 
@@ -847,7 +848,7 @@ window.addEventListener('appinstalled', () => { document.getElementById('btnInst
   document.getElementById('iosHintClose').onclick = () => { document.getElementById('iosHint').hidden = true; try { localStorage.setItem('bitoffice.ioshint', '1'); } catch(e) {} }; }
 ensureBubbles();
 if (!load()) { S.bhStart = priceAt(FIRST); decide(true); }
-document.getElementById('selShort').value = String(S.shortSize); document.getElementById('selSpeed').value = String(S.speed); document.getElementById('selVenue').value = S.venue; document.getElementById('selShort').disabled = S.venue==='spot';
+document.getElementById('selShort').value = String(S.shortSize); document.getElementById('selSpeed').value = String(S.speed); document.getElementById('selVenue').value = S.venue; document.getElementById('selShort').disabled = NOSHORT(S.venue);
 try { const t = localStorage.getItem('bitoffice.tab'); if (t) selectTab(t); } catch(e){}
 renderAll(); loop(); runMeeting(); initAI(); renderControl();
 (async () => { const ok = await loadLive(); await loadFunding(); if (ok) { save(); renderAll(); runMeeting(); } if (GH.token) await loadControl(); await loadBotStatus(); setInterval(loadBotStatus, 60000); })();

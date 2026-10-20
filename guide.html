@@ -306,12 +306,13 @@ footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-si
     <li><b>권한 (Edit restrictions)</b><p>✅ Enable Spot &amp; Margin Trading (현물) ✅ Enable Futures (선물) — 둘 다 켜야 하이브리드가 됩니다. ❌ Enable Withdrawals는 절대 켜지 않습니다 (키가 새도 돈을 못 뺌). IP 제한: 집 IP가 고정이면 PC 공인 IP 입력, 아니면 Unrestricted.</p></li>
     <li><b>.env에 붙여넣기</b><p><span class="path">문서\crypto_backtest\.env</span>를 메모장으로 열고 <code>BINANCE_API_KEY=</code>, <code>BINANCE_API_SECRET=</code> 뒤에 바로 붙여넣기(공백·따옴표 없이) → 저장. <code>BOT_TESTNET=1</code>, <code>BOT_DEMO=1</code>, <code>BOT_VENUE=hybrid</code>는 그대로. 파일 이름이 <code>.env.txt</code>로 바뀌지 않았는지 확인.</p></li>
     <li><b>확인</b><p><span class="path">run_once.bat</span> 더블클릭 → <code>connected: DEMO hybrid …</code>와 <code>standby</code>(또는 <code>hold</code>)가 뜨면 성공. 에러 <code>-2015</code> → 권한·IP 제한, <code>-1022</code> → Secret 오타, <code>Invalid API-key</code> → 실서버 키와 모의 키를 바꿔 썼거나 <code>BOT_DEMO</code> 값 확인.</p></li>
+    <li><b>업비트로 돌리기 (선택, 송금·KYC 없이 롱만)</b><p>upbit.com → 마이페이지 → <b>Open API 관리</b> → ✅ 자산조회 ✅ 주문 (❌ 출금) → <b>허용 IP</b>에 PC 공인 IP(네이버 "내 IP") → 발급 → Access key / Secret key를 <code>.env</code>의 <code>UPBIT_ACCESS_KEY</code>, <code>UPBIT_SECRET_KEY</code>에, <code>BOT_VENUE=upbit</code>. <code>BOT_TESTNET=1</code>이면 주문을 보내지 않는 드라이런, 며칠 보고 <code>0</code>. 업비트 계좌엔 원화만 넣어두면 되고 숏은 없습니다 (백테스트 3.49배).</p></li>
     <li><b>실계좌로 전환 (나중에)</b><p>binance.com 실서버 → 프로필 → API Management → Create API → 같은 방식. Enable Futures는 선물 계정을 먼저 개설해야 체크됩니다. KYC 필요, 출금 권한 금지, IP 제한 권장. <code>.env</code>의 키 교체 + <code>BOT_TESTNET=0</code>. 지갑엔 잃어도 되는 USDT만.</p></li>
   </ol>
 </section>
 
 <section id="upbit">
-  <div class="head"><span class="eyebrow">11 · UPBIT → BINANCE</span><h2>업비트에서 바이낸스로 코인 보내기</h2><p class="prose">바이낸스는 원화를 못 받습니다. 업비트에서 코인을 사서 바이낸스 지갑으로 보내고, 거기서 USDT로 바꿉니다. 업비트 기준 바이낸스는 "계정주 확인 연동 거래소"라 100만 원 이상도 본인 계정으로는 보낼 수 있습니다 (2026-10 기준).</p></div>
+  <div class="head"><span class="eyebrow">11 · UPBIT → BINANCE</span><h2>업비트에서 바이낸스로 코인 보내기</h2><p class="prose">이 장은 바이낸스로 돌릴 때만 필요합니다 (업비트 방식이면 건너뜀). 바이낸스는 원화를 못 받습니다. 업비트에서 코인을 사서 바이낸스 지갑으로 보내고, 거기서 USDT로 바꿉니다. 업비트 기준 바이낸스는 "계정주 확인 연동 거래소"라 100만 원 이상도 본인 계정으로는 보낼 수 있습니다 (2026-10 기준).</p></div>
   <ol class="steps">
     <li><b>조건 맞추기</b><p>업비트와 바이낸스의 <b>이름(한글 또는 영문)과 생년월일이 같아야</b> 합니다. 즉 바이낸스 KYC(신분증 + 얼굴 인증)를 먼저 끝내세요. 업비트는 원화를 넣은 뒤 일정 시간(첫 입금 72시간, 이후 입금·보안설정 변경 시 24시간) 코인 출금이 막히니, 보낼 날보다 미리 원화를 넣어두고 그 사이 이메일·OTP 같은 보안 설정을 바꾸지 마세요. 업비트 2채널 인증이 없으면 PC 웹에서만 출금됩니다.</p></li>
     <li><b>무슨 코인으로 보낼까</b><p>싸고 빠른 걸로. <b>USDT (트론 TRC20)</b>: 업비트가 USDT 출금(트론망)을 지원하면 수수료 거의 0, 1~5분 도착, 바이낸스에서 그대로 USDT라 바꿀 필요 없음. 그게 안 보이면 <b>XRP</b>: 수수료 1 XRP 수준, 몇 초~몇 분 도착. 단 XRP는 <b>주소 + 데스티네이션 태그</b> 두 개를 모두 넣어야 하고, 태그를 빠뜨리면 코인이 사라집니다. 비트코인·이더리움은 수수료가 비싸서 송금용으론 비추.</p></li>
