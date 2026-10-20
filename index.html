@@ -256,7 +256,7 @@ select{accent-color:var(--accent);background:var(--panel2);color:var(--ink);bord
       <span class="chip" id="chipVenue"><i></i>—</span>
       <span class="chip" id="chipNet"><i></i>앱 ↔ GitHub 미연결</span>
     </div>
-    <div class="banner" id="netNote" hidden>이 화면에서는 외부 연결이 막혀 있어요. 폰이나 PC 브라우저에서 <b>fafa2kk-stack.github.io/bit-office</b> 를 열면 실제 봇 관제가 됩니다.</div>
+    <div class="banner" id="netNote" hidden>외부 연결이 안 돼요 (claude.ai 미리보기이거나 오프라인). 폰·PC 브라우저에서 <b>fafa2kk-stack.github.io/bit-office</b> 를 열면 실제 봇 관제가 됩니다.</div>
     <div class="stats" style="margin-top:12px">
       <div class="stat"><div class="k">자산</div><div class="v" id="bEq">—</div></div>
       <div class="stat"><div class="k">포지션</div><div class="v" id="bPos">—</div></div>
@@ -750,7 +750,7 @@ async function patchControl(patch, msg){
 async function loadBotStatus(){
   let st = null;
   if (GH.token) { try { st = (await ghGet('status.json')).data; } catch(e) {} }
-  if (!st) { for (const u of ['status.json?t=' + Date.now(), `https://raw.githubusercontent.com/${REPO}/main/status.json?t=${Date.now()}`]) { try { const r = await fetch(u, {cache:'no-store'}); if (r.ok) { st = await r.json(); break; } } catch(e) { if (e instanceof TypeError && !/^https?:/.test(location.protocol) === false) GH.netBlocked = GH.netBlocked || location.protocol !== 'file:'; } } }
+  if (!st) { for (const u of ['status.json?t=' + Date.now(), `https://raw.githubusercontent.com/${REPO}/main/status.json?t=${Date.now()}`]) { try { const r = await fetch(u, {cache:'no-store'}); if (r.ok) { st = await r.json(); break; } } catch(e) { if (e instanceof TypeError && /^https?:/.test(location.protocol)) GH.netBlocked = true; } } }
   if (st) GH.status = st;
   renderControl();
 }
