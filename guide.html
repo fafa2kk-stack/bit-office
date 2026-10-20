@@ -159,10 +159,10 @@ footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-si
 <section id="setup">
   <div class="head"><span class="eyebrow">03 · FIRST TIME</span><h2>처음 한 번 설정 (10분)</h2><p class="prose">열쇠 두 개를 꽂는 작업입니다. 바이낸스 키는 봇이 거래소에 들어가는 열쇠, GitHub 토큰은 봇과 폰이 같은 우체통을 쓰는 열쇠.</p></div>
   <ol class="steps">
-    <li><b>바이낸스 테스트넷 키 → .env</b><p>testnet.binancefuture.com 로그인 → API Key 메뉴 → Key / Secret 복사. <span class="path">문서\crypto_backtest\.env.example</span>을 복사해 이름을 <span class="path">.env</span>로 바꾸고 메모장으로 열어 <code>BINANCE_API_KEY</code>, <code>BINANCE_API_SECRET</code>을 채웁니다. <code>BOT_TESTNET=1</code>은 그대로 (가짜 돈).</p></li>
+    <li><b>바이낸스 모의(Demo) API 키 → .env</b><p>바이낸스 계정으로 <b>demo.binance.com</b> 로그인(가상 USDT 자동 지급, 신분증 인증 불필요) → 우상단 계정 아이콘 → <b>API Management → Create API</b> → System generated → OTP → Key / Secret 복사 (Secret은 그 화면에서만 보임). 권한은 <b>Enable Futures</b>만 켜고 출금은 절대 켜지 않습니다. <span class="path">문서\crypto_backtest\.env</span>를 메모장으로 열어 <code>BINANCE_API_KEY=</code>, <code>BINANCE_API_SECRET=</code> 뒤에 붙여넣고 저장. <code>BOT_TESTNET=1</code>, <code>BOT_DEMO=1</code>은 그대로 (가짜 돈). 자세한 순서는 PC의 TOMORROW.md 1번.</p></li>
     <li><b>GitHub 토큰 → .env 와 폰 앱, 둘 다</b><p>github.com → Settings → Developer settings → Fine-grained tokens → Generate. Repository access는 <b>bit-office만</b>, Permissions는 <b>Contents: Read and write</b>만, 만료 1년. 받은 <code>github_pat_...</code>을 <code>.env</code>의 <code>GITHUB_TOKEN=</code> 뒤에 붙이고, 폰 앱 실제 봇 탭 → "연결" 칸에도 붙여넣고 [저장하고 연결 확인].</p></li>
     <li><b>PC에서 봇 켜기</b><p><span class="path">setup.bat</span> 한 번 (처음만, 라이브러리 설치) → <span class="path">run_once.bat</span> 더블클릭해서 창에 <code>standby</code> 또는 <code>hold</code>가 뜨고 빨간 에러가 없으면 OK → <span class="path">start_bot.bat</span> 더블클릭하고 창을 켜둡니다. 이 창이 봇입니다. 폰 앱에 "봇 연결됨"이 켜집니다.</p></li>
-    <li><b>폰에서 ▶ 거래 시작</b><p>실제 봇 탭 → ▶ 거래 시작 → 확인. 봇이 10분 안에 읽고, 다음 09:03 판정부터 주문을 냅니다. 테스트넷으로 몇 주 지켜본 뒤 실계좌 키로 바꾸고 <code>BOT_TESTNET=0</code>.</p></li>
+    <li><b>폰에서 ▶ 거래 시작</b><p>실제 봇 탭 → ▶ 거래 시작 → 확인. 봇이 10분 안에 읽고, 다음 09:03 판정부터 주문을 냅니다. 모의로 몇 주 지켜본 뒤 실계좌 키로 바꾸고 <code>BOT_TESTNET=0</code>.</p></li>
   </ol>
   <div class="note">토큰을 넣기 전엔 봇이 <code>.env</code>대로 바로 거래하고, 넣은 뒤부터는 폰에서 거래 시작을 눌러야 주문이 나갑니다. 그 전까진 매일 판정만 하고 <code>standby</code>로 기록합니다.</div>
 </section>
@@ -285,7 +285,7 @@ footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-si
   <dl class="kv">
     <dt>API</dt><dd>프로그램끼리 쓰는 창구. "시세 주세요", "이거 사주세요"를 보내는 통로. 공짜고, 토큰과 무관.</dd>
     <dt>API 키</dt><dd>그 창구를 내 계정으로 쓰게 해주는 열쇠. 권한을 거래만으로 제한할 수 있음.</dd>
-    <dt>테스트넷</dt><dd>가짜 돈으로 진짜처럼 주문하는 연습 거래소. 선물은 testnet.binancefuture.com, 현물은 testnet.binance.vision.</dd>
+    <dt>모의거래 (Demo Trading)</dt><dd>가짜 돈으로 진짜처럼 주문하는 연습 환경. demo.binance.com 에서 실제 바이낸스 계정으로 로그인해 씁니다. 봇은 <code>BOT_TESTNET=1</code>이면 여기로 주문을 보냅니다.</dd>
     <dt>현물 / 선물</dt><dd>현물은 코인을 진짜로 사고팜(롱만, 펀딩비 없음, 수수료 0.1%). 선물은 계약이라 숏도 됨(수수료 0.05%, 8시간마다 펀딩비).</dd>
     <dt>하이브리드</dt><dd>롱은 현물 지갑, 숏은 선물 지갑. 롱에 펀딩비를 안 내서 백테스트 성적이 가장 좋음.</dd>
     <dt>펀딩비</dt><dd>선물에서 롱과 숏이 8시간마다 주고받는 소액. 보통 롱이 냄 (연 10% 안팎).</dd>

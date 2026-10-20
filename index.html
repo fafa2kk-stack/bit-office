@@ -287,10 +287,10 @@ select{accent-color:var(--accent);background:var(--panel2);color:var(--ink);bord
     <div class="controls"><button class="primary" id="btnSaveToken">저장하고 연결 확인</button><button class="ghost" id="btnClearToken">토큰 지우기</button><button id="btnRefresh">상태 새로고침</button></div>
     <details><summary>아침 체크리스트</summary>
       <ol class="todo" id="todo">
-        <li id="td1"><span class="tick"></span><span><b>바이낸스 API 키</b> → PC <code>문서\crypto_backtest\.env</code> 에 BINANCE_API_KEY / BINANCE_API_SECRET (처음엔 BOT_TESTNET=1)</span></li>
+        <li id="td1"><span class="tick"></span><span><b>바이낸스 모의(Demo) API 키</b> → demo.binance.com → API Management → Create API → PC <code>문서\crypto_backtest\.env</code> 에 BINANCE_API_KEY / BINANCE_API_SECRET (BOT_TESTNET=1, BOT_DEMO=1)</span></li>
         <li id="td2"><span class="tick"></span><span><b>GitHub 토큰</b> → 같은 .env 에 GITHUB_TOKEN, GITHUB_REPO=fafa2kk-stack/bit-office — 그리고 위 입력칸에도 같은 토큰</span></li>
         <li id="td3"><span class="tick"></span><span><b>PC에서 start_bot.bat</b> 더블클릭 (창 켜둔 채) → 여기 "봇 연결됨"이 켜짐</span></li>
-        <li id="td4"><span class="tick"></span><span><b>여기서 ▶ 거래 시작</b> → 봇이 다음 판정(매일 09:03)부터 주문. 테스트넷으로 며칠 보고 BOT_TESTNET=0</span></li>
+        <li id="td4"><span class="tick"></span><span><b>여기서 ▶ 거래 시작</b> → 봇이 다음 판정(매일 09:03)부터 주문. 모의로 며칠 보고 BOT_TESTNET=0</span></li>
       </ol>
     </details>
   </div>
