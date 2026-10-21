@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-fLmaYW8/QFh0lURLAR5d+kOHjZhoUOBKZn2aCfm9xd4='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://finnhub.io; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-VJVX5H2b0SM1XzLAk4NI1VHOmuGGjYXjwgrcCpGPozY='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://finnhub.io; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -14,7 +14,7 @@
 <meta name="theme-color" content="#0e1420">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Press+Start+2P&display=swap">
 <style>:root{
   --bg:#0e1420; --bg2:#121a29; --panel:#152036; --line:#243048; --line2:#2f3f5c;
   --ink:#e8edf7; --mute:#8d9ab5; --dim:#5f6c88;
@@ -68,8 +68,8 @@ h3{font-size:14px;font-weight:600;margin:22px 0 8px;color:var(--ink)}
 .acct .note{margin-top:8px}
 
 /* tabs */
-.tabs{display:grid;grid-template-columns:repeat(4,1fr);position:sticky;top:49px;z-index:8;background:var(--bg);border-bottom:1px solid var(--line)}
-.tab{border:0;border-radius:0;background:transparent;color:var(--mute);padding:11px 4px;font-size:14px;border-bottom:2px solid transparent}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);position:sticky;top:49px;z-index:8;background:var(--bg);border-bottom:1px solid var(--line)}
+.tab{border:0;border-radius:0;background:transparent;color:var(--mute);padding:11px 2px;font-size:13px;border-bottom:2px solid transparent;white-space:nowrap}
 .tab[aria-selected=true]{color:var(--ink);border-bottom-color:var(--amber);font-weight:600}
 main{padding:12px 14px 40px;max-width:900px;margin:0 auto}
 
@@ -177,6 +177,44 @@ main{padding:12px 14px 40px;max-width:900px;margin:0 auto}
   .tabs{position:static}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* 회의실 (pixel office) */
+.office{position:relative;width:100%;aspect-ratio:16/9;background:#0b0d13;border:1px solid var(--line2);border-radius:var(--r);overflow:hidden;box-shadow:0 18px 44px rgba(0,0,0,.5)}
+.office::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.035),transparent 25%,transparent 78%,rgba(0,0,0,.28));border-radius:var(--r)}
+.office canvas{width:100%;height:100%;display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+.bubble{position:absolute;transform:translate(-50%,-100%);background:#fbf7e8;color:#1b1a16;font-size:9.5px;line-height:1.4;padding:5px 6px;max-width:56%;border:2px solid #1b1a16;border-radius:6px;box-shadow:3px 3px 0 #1b1a16;opacity:0;pointer-events:none;z-index:2}
+.bubble::after{content:"";position:absolute;left:var(--tail,50%);bottom:-9px;width:0;height:0;border:5px solid transparent;border-top-color:#1b1a16;transform:translateX(-50%)}
+.bubble.show{opacity:1}
+.bubble.below{transform:translate(-50%,0)}
+.bubble.below::after{bottom:auto;top:-9px;border-top-color:transparent;border-bottom-color:#1b1a16}
+.bubble b{font-weight:700}
+.dept{display:inline-block;font-size:9.5px;padding:1px 5px;margin-right:5px;color:#fff;border-radius:3px;vertical-align:1px;font-weight:700;white-space:nowrap}
+.dept.market{background:#2f5fb5}.dept.research{background:#1e7a4a}.dept.trading{background:#8a6a10}.dept.risk{background:#a3522a}.dept.ceo{background:#444a5a}
+.pipe{display:grid;grid-template-columns:repeat(4,1fr);margin-top:12px;position:relative}
+.pipe div{position:relative;text-align:center;font-size:11.5px;color:var(--mute);padding-top:28px}
+.pipe div::before{content:attr(data-n);position:absolute;left:50%;top:0;transform:translateX(-50%);width:22px;height:22px;border-radius:50%;background:var(--panel);border:2px solid var(--line2);color:var(--mute);font-size:11px;line-height:18px;font-weight:700;z-index:1}
+.pipe div::after{content:"";position:absolute;left:50%;right:-50%;top:10px;height:2px;background:var(--line2)}
+.pipe div:last-child::after{display:none}
+.pipe div.on{color:var(--amber)}
+.pipe div.on::before{background:var(--amber);border-color:var(--amber);color:var(--amber-ink);box-shadow:0 0 12px rgba(245,185,78,.6)}
+.pipe div.done{color:var(--up)}
+.pipe div.done::before{content:"✓";background:#1f3b2c;border-color:var(--up);color:var(--up)}
+.pipe div.done::after{background:var(--up)}
+.statusline{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12.5px;color:var(--mute);margin-top:8px;flex-wrap:wrap}
+.statusline b{color:var(--ink)}
+.log{max-height:320px;overflow-y:auto;display:grid;gap:8px;font-size:12.5px;padding-right:4px}
+.log .line{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start}
+.log .avatar{width:34px;height:34px;border-radius:9px;background:var(--panel);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.log .avatar canvas,.staffgrid canvas{width:30px;height:21px;image-rendering:pixelated}
+.log .meta{display:flex;gap:6px;align-items:center;margin-bottom:2px}
+.log .who{color:var(--ink);font-weight:700}
+.log .txt{color:var(--ink)}
+.log .day{grid-column:1/-1;font-size:11px;color:var(--mute);border-top:1px dashed var(--line);padding-top:8px;margin-top:4px}
+.staffgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;font-size:12px}
+.staffgrid div{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:grid;grid-template-columns:34px 1fr;gap:8px;align-items:center}
+.staffgrid canvas{justify-self:center}
+.staffgrid b{display:block;color:var(--ink)}
+.staffgrid span{color:var(--mute);font-size:11px}
 </style>
 </head>
 <body><header class="top">
@@ -197,14 +235,26 @@ main{padding:12px 14px 40px;max-width:900px;margin:0 auto}
 </section>
 
 <nav class="tabs" role="tablist">
-  <button class="tab" role="tab" data-tab="watch" aria-selected="true">워치리스트</button>
+  <button class="tab" role="tab" data-tab="meet" aria-selected="true">회의실</button>
+  <button class="tab" role="tab" data-tab="watch" aria-selected="false">워치리스트</button>
   <button class="tab" role="tab" data-tab="sym" aria-selected="false">종목</button>
   <button class="tab" role="tab" data-tab="trades" aria-selected="false">매매</button>
   <button class="tab" role="tab" data-tab="bot" aria-selected="false">봇</button>
 </nav>
 
 <main>
-<section id="watch">
+<section id="meet">
+  <div class="office" id="officeBox"><canvas id="officeCv" width="640" height="360"></canvas></div>
+  <div class="pipe" id="pipe"><div data-stage="0" data-n="1">시황 보고</div><div data-stage="1" data-n="2">리서치 토론</div><div data-stage="2" data-n="3">리스크·집행</div><div data-stage="3" data-n="4">대표 결재</div></div>
+  <div class="statusline"><span id="flowStatus">회의 준비 중</span><span><b id="flowVerdict">—</b></span></div>
+  <div class="btns"><button id="btnReplayMeeting">회의 다시 보기</button><button id="btnMeetSym">종목 상세 열기</button><button id="btnMeetPick">다른 종목 고르기</button></div>
+  <p class="msg">직원 9명은 각자 지표 하나씩을 실제로 계산해서 보고합니다(시장·추세·수급·모멘텀·상대강도·변동성·사이징·집행). 결재는 규칙(기본 골든크로스)이 내리고, 점수는 확신도예요. AI 대화가 아니라 토큰은 0입니다.</p>
+  <h3>대화 기록 <span class="h3sub" id="logDate">—</span></h3>
+  <div class="log" id="log"></div>
+  <h3>직원</h3>
+  <div class="staffgrid" id="staffGrid"></div>
+</section>
+<section id="watch" hidden>
   <div class="toolbar">
     <input id="q" type="search" placeholder="종목 검색: 티커 또는 한글 (테슬라, 반도체, 나스닥)" autocomplete="off" autocapitalize="characters" spellcheck="false">
     <div class="filters" id="filters">
@@ -305,7 +355,7 @@ main{padding:12px 14px 40px;max-width:900px;margin:0 auto}
 'use strict';
 // ============================================================ US 데스크 v2 — 데이터
 const REPO = 'fafa2kk-stack/bit-office';
-const VERSION = '2.0';
+const VERSION = '2.1';
 const UNI = JSON.parse(document.getElementById('uniData').textContent);        // {updated, data:{sym:{name,type,rows:[[day,close,vol],...]}}}
 const VIXSEED = JSON.parse(document.getElementById('vixData').textContent);    // [[day,close],...]
 const DATA = UNI.data || UNI;
@@ -466,7 +516,7 @@ $('filters').addEventListener('click', e => { const b = e.target.closest('button
 $('sort').value = S.sort; $('sort').onchange = e => { S.sort = e.target.value; save(); renderWatch(); };
 
 // ------------------------------------------------------------ 종목 상세
-function openSymbol(sym){ if (!DATA[sym]) return; S.sel = sym; save(); selectTab('sym'); renderSymbol(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+function openSymbol(sym, tab){ if (!DATA[sym]) return; S.sel = sym; save(); selectTab(tab || 'sym'); if ((tab || 'sym') === 'sym') renderSymbol(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
 function renderSymbol(){
   const sym = S.sel; const specs = botSpecs(); const spec = specs[sym]; const rule = spec ? spec.rule : S.rule;
   setT('sTicker', sym); setT('sName', nameOf(sym) + (DATA[sym].name && KO[sym] ? ' · ' + DATA[sym].name : ''));
@@ -619,7 +669,7 @@ async function loadBotStatus(){
   let st = null; if (GH.token){ try { st = (await ghGet('us_status.json')).data; } catch (e) {} }
   if (!st) st = await fetchJson('../us_status.json');
   if (st){ ST = st; WLCACHE = null; }
-  renderAccount(); renderBot(); if (activeTab() === 'trades') renderTrades(); if (activeTab() === 'sym') renderSymbol(); if (activeTab() === 'watch') renderWatch();
+  renderAccount(); renderBot(); if (activeTab() === 'trades') renderTrades(); if (activeTab() === 'sym') renderSymbol(); if (activeTab() === 'watch') renderWatch(); if (lastRec) lastRec = meetingRec(S.sel) || lastRec;
 }
 async function loadQuotes(){
   const q = await fetchJson('../us_quotes.json'); if (!q || !q.q) return;
@@ -663,22 +713,202 @@ $('btnClearToken').onclick = () => { GH.token = ''; GH.locked = false; GH.hasEnc
 $('btnRefresh').onclick = async () => { await loadControl(); await loadBotStatus(); await loadQuotes(); setT('ctlMsg', '새로고침 ' + new Date().toLocaleTimeString('ko-KR')); };
 $('btnRefreshAll').onclick = async () => { await loadControl(); await loadBotStatus(); await loadQuotes(); await refreshUniverse(); await liveQuotes(); };
 
+
+// ============================================================ 회의실 (pixel office) — 직원 9명 = 지표 9개
+const DEPT = { market: '시황팀', research: '리서치', trading: '트레이딩 데스크', risk: '리스크 위원회', ceo: '대표실' };
+const STAFF = [
+  { id: 'index', name: '시장', role: '시장 레짐 (S&P500·VIX)', dept: 'market', x: 60, y: 126, skin: '#f2c9a0', hair: '#3b2a1a', shirt: '#4f8cf0', pants: '#2d3650', glasses: true, part: 'regime' },
+  { id: 'senti', name: '추세', role: '추세 애널리스트 (50·200일선)', dept: 'market', x: 150, y: 126, skin: '#e8b88a', hair: '#111318', shirt: '#2ecc71', pants: '#2d3650', long: true, part: 'trend' },
+  { id: 'flow', name: '수급', role: '수급·거래량 애널리스트', dept: 'market', x: 240, y: 126, skin: '#c98a5a', hair: '#c98c3a', shirt: '#9b59b6', pants: '#3b3b3b', cap: true, part: 'vol2' },
+  { id: 'bull', name: '모멘텀', role: '리서처 (3·6·12개월 수익)', dept: 'research', x: 62, y: 246, skin: '#f2c9a0', hair: '#7a4b1f', shirt: '#2ecc71', pants: '#2d3650', tie: '#1b4d2b', part: 'mom' },
+  { id: 'bear', name: '상대강도', role: '리서처 (S&P500 대비)', dept: 'research', x: 238, y: 246, skin: '#e8b88a', hair: '#111318', shirt: '#e74c3c', pants: '#2d3650', tie: '#5a1f27', part: 'rs' },
+  { id: 'risk', name: '리스크', role: '리스크 위원 (변동성·가디언)', dept: 'risk', x: 426, y: 312, skin: '#f2c9a0', hair: '#c9c9c9', shirt: '#e67e22', pants: '#3b3b3b', glasses: true, part: 'vol' },
+  { id: 'sizer', name: '사이저', role: '포지션 사이징', dept: 'trading', x: 100, y: 318, skin: '#e8b88a', hair: '#3b2a1a', shirt: '#f1c40f', pants: '#2d3650' },
+  { id: 'trader', name: '트레이더', role: '규칙 판정·주문 집행', dept: 'trading', x: 210, y: 318, skin: '#f2c9a0', hair: '#111318', shirt: '#2b3142', pants: '#1f2430', headset: true },
+  { id: 'ceo', name: '대표', role: '최종 결재', dept: 'ceo', x: 468, y: 140, skin: '#e8b88a', hair: '#2a1a10', shirt: '#1f2a44', pants: '#1f2430', tie: '#2ecc71', suit: true },
+];
+const BY = Object.fromEntries(STAFF.map(s => [s.id, s]));
+const ORDER = ['index', 'senti', 'flow', 'bull', 'bear', 'risk', 'sizer', 'trader', 'ceo'];
+const STAGE = { index: 0, senti: 0, flow: 0, bull: 1, bear: 1, risk: 2, sizer: 2, trader: 2, ceo: 3 };
+const TABLE = new Set(['bull', 'bear']);
+function meetingRec(sym){
+  const specs = botSpecs(); const spec = specs[sym]; const rule = spec ? spec.rule : S.rule;
+  const v = verdictOf(sym, rule); const sc = v ? v.sc : scoreOf(sym); if (!sc) return null;
+  const P = Object.fromEntries(sc.parts.map(p => [p.key, p]));
+  const st = ST; const sg = st && st.signals && st.signals[sym]; const held = heldQty(sym);
+  const lastOrd = ((st && st.orders) || []).filter(o => o.symbol === sym).slice(-1)[0];
+  const tone = p => p.pts >= p.max * 0.66 ? '긍정' : p.pts <= p.max * 0.33 ? '부정' : '중립';
+  const say = p => `${p.why}. → ${p.name} ${p.pts}/${p.max}점, ${tone(p)}.`;
+  const L = { index: say(P.regime), senti: say(P.trend), flow: say(P.vol2), bull: say(P.mom), bear: say(P.rs) };
+  L.risk = `${P.vol.why}. ` + (st && st.guardian && st.guardian !== 'ok' ? `가디언 상태: ${st.guardian}. ` : '가디언 한도(하루 −6%, 고점 대비 −35%) 안입니다. ') + `→ 변동성 ${P.vol.pts}/${P.vol.max}점.`;
+  L.sizer = spec ? `봇 비중 ${Math.round(spec.w * 100)}% (${spec.tf === '1h' ? '1시간봉' : '일봉'})${sg && sg.tgt_qty != null ? `, 목표 ${sg.tgt_qty}주, 현재 ${sg.cur_qty}주` : ''}. ${P.vol.pts < 5 ? '변동성이 커서 비중을 줄이는 쪽이 안전합니다.' : '변동성은 감당할 수준입니다.'}`
+                 : `봇 종목이 아닙니다. 점수 ${sc.total}점이면 비중 ${sc.total >= 70 ? '20~30%' : sc.total >= 45 ? '10~20%' : '0~10%'}가 적당합니다.`;
+  L.trader = v ? `${RULE_KO[rule]} 신호 ${v.long ? '켜짐' : '꺼짐'}(${v.rs.sinceTxt}부터). ` + (held ? `보유 ${held}주. ` : '') + (lastOrd ? `마지막 주문: ${lastOrd.side === 'buy' ? '매수' : '매도'} ${lastOrd.qty}주 @ ${fmtPx(lastOrd.limit || lastOrd.price)} (${lastOrd.status || ''}).` : spec ? '다음 판단 시각에 규칙대로 집행합니다.' : '봇에 담으면 자동으로 집행합니다.') : '데이터가 부족해 판정 불가.';
+  L.ceo = v ? `${v.head}. ${v.why}` : '데이터 부족. 200일 이상 일봉이 필요합니다.';
+  const dp = { bull: sc.parts.filter(p => p.pts >= p.max * 0.66).length, bear: sc.parts.filter(p => p.pts <= p.max * 0.33).length };
+  return { sym, m: sc.m, sc, v, L, rule, spec, held, dp, halted: !!(st && st.guardian && /HALT|KILL|loss|drawdown/.test(st.guardian)), acted: !!lastOrd, date: UNI.updated ? UNI.updated.slice(0, 10) : '' };
+}
+const cv = $('officeCv'), ctx = cv.getContext('2d');
+const BODY = [
+".......HHHHHH.......",".....HHHHHHHHHH.....","....HHHHHHHHHHHH....","....HHhhhhhhhhHH....","....HFFFFFFFFFFH....","....HFFFFFFFFFFH....",
+"....FFWEFFFFWEFF....","....FFFFFFFFFFFF....",".....FFFFFFFFFF.....",".....FFFFMMFFFF.....","......FFFFFFFF......",".......FFFFFF.......",
+"......TTTTTTTT......",".....TTTTCCTTTT.....","....ATTTTCCTTTTA....","....ATTTTTTTTTTA....","....ATTTTTTTTTTA....","....ATTTTTTTTTTA....",
+"....FTTTTTTTTTTF....",".....TTTTTTTTTT.....",".....TTTTTTTTTT.....",".....PPPPPPPPPP.....",".....PPPPPPPPPP.....",".....PPPP..PPPP.....",
+".....PPPP..PPPP.....",".....PPPP..PPPP.....",".....PPPP..PPPP.....",".....PPPP..PPPP.....",".....SSSS..SSSS.....","....SSSSS..SSSSS...."];
+function shade(hex, d){ const n = parseInt(hex.slice(1),16); const f = v => Math.max(0,Math.min(255,v)); const r=f((n>>16)+d), g=f(((n>>8)&255)+d), b=f((n&255)+d); return '#'+((r<<16)|(g<<8)|b).toString(16).padStart(6,'0'); }
+function drawSprite(c, s, x0, y0, opt){
+  const map = {H:s.hair, h:shade(s.hair,28), F:s.skin, W:'#ffffff', E:'#1b1a16', M:'#b8655a', T:s.shirt, A:shade(s.shirt,-20), C:s.tie||s.shirt, P:s.pants, S:'#1b1a16'};
+  for (let r=0;r<30;r++) for (let q=0;q<20;q++){ const ch = BODY[r][q]; if (ch==='.') continue; let col = map[ch];
+    if ((ch==='T'||ch==='P'||ch==='H') && q>=12) col = shade(col,-16);
+    if (s.suit && ch==='T' && r>=12 && r<=16 && (q===7||q===12)) col = shade(s.shirt,30);
+    c.fillStyle = col; c.fillRect(x0+q, y0+r, 1, 1); }
+  if (s.long){ c.fillStyle = s.hair; for (let r=4;r<=13;r++){ c.fillRect(x0+3,y0+r,1,1); c.fillRect(x0+16,y0+r,1,1); } }
+  if (s.bun){ c.fillStyle = s.hair; c.fillRect(x0+13,y0-2,5,4); }
+  if (s.cap){ c.fillStyle = shade(s.shirt,-30); c.fillRect(x0+4,y0,12,3); c.fillRect(x0+3,y0+3,16,1); c.fillStyle = shade(s.shirt,-10); c.fillRect(x0+5,y0+1,10,1); }
+  if (s.glasses){ c.fillStyle='#1b1a16'; for (const gx of [5,11]){ c.fillRect(x0+gx,y0+5,4,1); c.fillRect(x0+gx,y0+8,4,1); c.fillRect(x0+gx,y0+6,1,2); c.fillRect(x0+gx+3,y0+6,1,2); } c.fillRect(x0+9,y0+6,2,1); }
+  if (s.headset){ c.fillStyle='#111318'; c.fillRect(x0+4,y0+1,12,1); c.fillRect(x0+3,y0+2,1,5); c.fillRect(x0+16,y0+2,1,5); c.fillRect(x0+2,y0+5,2,3); c.fillRect(x0+16,y0+5,2,3); c.fillRect(x0+16,y0+8,3,1); c.fillStyle='#ef5d6b'; c.fillRect(x0+19,y0+9,1,1); }
+  if (opt && opt.typing){ c.fillStyle = s.skin; c.fillRect(x0+4,y0+18+(opt.tick?1:0),1,1); c.fillRect(x0+15,y0+18+(opt.tick?0:1),1,1); }
+}
+function sprite(s, cx, bottom, opt){
+  const x0 = cx-10, y0 = bottom-30 + (opt.bob?1:0);
+  ctx.fillStyle='rgba(0,0,0,.28)'; ctx.fillRect(cx-8, bottom-1, 16, 2);
+  if (opt.speak){ ctx.fillStyle='rgba(245,197,66,.16)'; ctx.fillRect(cx-13, y0-4, 26, 38); ctx.fillStyle='rgba(245,197,66,.6)'; ctx.fillRect(cx-11, bottom-1, 22, 3); }
+  drawSprite(ctx, s, x0, y0, opt);
+}
+function nameTag(s, cx, y){
+  ctx.font='bold 8px "IBM Plex Sans KR", system-ui, sans-serif'; ctx.textBaseline='top'; ctx.textAlign='center';
+  const w = Math.ceil(ctx.measureText(s.name).width)+8, x = Math.round(cx-w/2);
+  ctx.fillStyle = speaking===s.id ? 'rgba(245,197,66,.92)' : 'rgba(8,10,16,.72)'; ctx.fillRect(x, y, w, 11);
+  ctx.fillStyle = speaking===s.id ? '#1a1400' : '#e9e7df'; ctx.fillText(s.name, cx, y+1); ctx.textAlign='left';
+}
+function chairBack(x, y, w){ ctx.fillStyle='#2b3142'; ctx.fillRect(x, y, w, 9); ctx.fillStyle='#3a4258'; ctx.fillRect(x, y, w, 2); }
+function deskFront(x, y, w, screen, opt){
+  ctx.fillStyle='#a3703f'; ctx.fillRect(x, y, w, 2); ctx.fillStyle='#8a5a32'; ctx.fillRect(x, y+2, w, 6);
+  ctx.fillStyle='#5e3b1f'; ctx.fillRect(x, y+8, w, 14); ctx.fillStyle='#4a2e18'; ctx.fillRect(x+w-14, y+11, 10, 1); ctx.fillRect(x+w-14, y+16, 10, 1);
+  ctx.fillStyle='#3e2a16'; ctx.fillRect(x+2, y+22, 3, 3); ctx.fillRect(x+w-5, y+22, 3, 3);
+  const n = opt.dual ? 2 : 1;
+  for (let k=0;k<n;k++){ const mx = x + w - 22 - k*22; ctx.fillStyle='#1b1a16'; ctx.fillRect(mx, y-14, 20, 14); ctx.fillStyle=screen; ctx.fillRect(mx+1, y-13, 18, 12);
+    ctx.fillStyle='rgba(255,255,255,.18)'; ctx.fillRect(mx+1, y-13, 18, 1);
+    ctx.fillStyle='#0b0d13'; for (let i=0;i<8;i++) ctx.fillRect(mx+2+i*2, y-11+((i*5+(opt.busy?(frame>>4):0))%9), 1, 1);
+    ctx.fillStyle='#1b1a16'; ctx.fillRect(mx+8, y-1, 4, 1); }
+  ctx.fillStyle='#d9d2c0'; ctx.fillRect(x+4, y+3, 12, 3); ctx.fillStyle='#bfb8a6'; ctx.fillRect(x+4, y+3, 12, 1);
+  ctx.fillStyle='#d9d2c0'; ctx.fillRect(x+18, y+4, 3, 2);
+  if (opt.mug){ ctx.fillStyle=opt.mug; ctx.fillRect(x+w-30, y+2, 4, 4); ctx.fillStyle=shade(opt.mug,-30); ctx.fillRect(x+w-26, y+3, 1, 2); }
+  if (opt.papers){ ctx.fillStyle='#f3efe2'; ctx.fillRect(x+24, y+2, 8, 5); ctx.fillStyle='#b8b2a2'; ctx.fillRect(x+25, y+3, 6, 1); ctx.fillRect(x+25, y+5, 4, 1); }
+  if (opt.lamp){ ctx.fillStyle='#3a3f52'; ctx.fillRect(x+6, y-12, 2, 12); ctx.fillStyle='#f5c542'; ctx.fillRect(x+2, y-14, 10, 3); ctx.fillStyle='rgba(245,197,66,.15)'; ctx.fillRect(x, y-11, 14, 11); }
+  if (opt.plant){ ctx.fillStyle='#7a5230'; ctx.fillRect(x+w-8, y+1, 5, 4); ctx.fillStyle='#2f9e5b'; ctx.fillRect(x+w-10, y-5, 9, 6); ctx.fillStyle='#48d17f'; ctx.fillRect(x+w-8, y-8, 5, 3); }
+}
+function oval(cx, cy, rx, ry, col){ for (let r=-ry; r<=ry; r++){ const w = Math.round(Math.sqrt(Math.max(0,1-(r*r)/(ry*ry)))*rx); ctx.fillStyle = col; ctx.fillRect(cx-w, cy+r, 2*w, 1); } }
+function floorWood(x,y,w,h){ for (let r=0; r*8<h; r++){ const yy=y+r*8, hh=Math.min(8,h-r*8), o=(r%2)*20; for (let k=-1; k*40+o<w; k++){ const xx=x+k*40+o, x0=Math.max(x,xx), x1=Math.min(x+w,xx+40); if (x1<=x0) continue; ctx.fillStyle=(k&1)?'#2b2a3a':'#2f2e40'; ctx.fillRect(x0,yy,x1-x0,hh); if (xx>x){ ctx.fillStyle='#262536'; ctx.fillRect(xx,yy,1,hh); } } ctx.fillStyle='#232233'; ctx.fillRect(x, yy+hh-1, w, 1); } }
+function floorCarpet(x,y,w,h){ ctx.fillStyle='#263046'; ctx.fillRect(x,y,w,h); ctx.fillStyle='#2c3852'; for (let r=0; r*6+2<h; r++){ const yy=y+2+r*6, o=(r%2)*3; for (let xx=x+o; xx<x+w; xx+=6) ctx.fillRect(xx,yy,1,1); } }
+function floorTile(x,y,w,h,a,b){ for (let r=0; r*12<h; r++) for (let c=0; c*12<w; c++){ ctx.fillStyle=((r+c)&1)?a:b; ctx.fillRect(x+c*12, y+r*12, Math.min(12,w-c*12), Math.min(12,h-r*12)); } }
+function floorMarble(x,y,w,h){ ctx.fillStyle='#2a2f3f'; ctx.fillRect(x,y,w,h); ctx.fillStyle='#333a4c'; for (let k=0;k<h+w;k+=18){ for (let t=0;t<Math.min(w,h);t+=1){ const xx=x+k-t, yy=y+t; if (xx>=x && xx<x+w && yy<y+h) ctx.fillRect(xx,yy,1,1); } } }
+function miniCandles(x, y, w, h, i){
+  const n = 28, a = Math.max(0, i-n+1); let lo=Infinity, hi=-Infinity; for (let k=a;k<=i;k++){ lo=Math.min(lo,D[k].l); hi=Math.max(hi,D[k].h); }
+  const bw = Math.floor(w/n); for (let k=a;k<=i;k++){ const X = x + (k-a)*bw, Y = v => y + Math.round((1-(v-lo)/(hi-lo))*(h-1)); const up = D[k].c>=D[k].o;
+    ctx.fillStyle = up ? '#48d17f' : '#ef5d6b'; ctx.fillRect(X+Math.floor(bw/2), Y(D[k].h), 1, Math.max(1, Y(D[k].l)-Y(D[k].h))); ctx.fillRect(X, Y(Math.max(D[k].o,D[k].c)), Math.max(1,bw-1), Math.max(1, Y(Math.min(D[k].o,D[k].c))-Y(Math.max(D[k].o,D[k].c)))); }
+}
+function miniLine(x, y, w, h, i, n){ const a = Math.max(0, i-n+1); let lo=Infinity, hi=-Infinity; for (let k=a;k<=i;k++){ lo=Math.min(lo,D[k].c); hi=Math.max(hi,D[k].h); } const up = D[i].c >= D[a].c; ctx.fillStyle = up ? '#48d17f' : '#ef5d6b'; for (let k=a;k<=i;k++){ const X = x + Math.round((k-a)/(n-1)*(w-1)), Y = y + Math.round((1-(D[k].c-lo)/(hi-lo||1))*(h-1)); ctx.fillRect(X, Y, 1, 1); } }
+let frame = 0, speaking = null, lastRec = null;
+function skyline(x, y, w, h){
+  const g = ctx.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, '#8ec5ff'); g.addColorStop(1, '#dbeeff'); ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(x + 8, y + 6, 14, 3); ctx.fillRect(x + 11, y + 4, 8, 2); ctx.fillRect(x + w - 26, y + 10, 12, 3);
+  const bl = [[0, 18, 7], [8, 26, 6], [15, 14, 9], [25, 30, 8], [34, 20, 6], [41, 36, 7], [49, 16, 10], [60, 24, 6], [67, 32, 5], [73, 12, 8], [82, 22, 6]];
+  for (const [bx, bh, bw] of bl){ if (bx + bw > w) break; ctx.fillStyle = '#5b6f8f'; ctx.fillRect(x + bx, y + h - bh, bw, bh); ctx.fillStyle = '#c9dcf5'; for (let yy = y + h - bh + 2; yy < y + h - 2; yy += 3) for (let xx = x + bx + 1; xx < x + bx + bw - 1; xx += 2) ctx.fillRect(xx, yy, 1, 1); }
+}
+function drawOffice(rec){
+  frame++; const bob = (frame >> 4) & 1, tick = (frame >> 3) & 1;
+  ctx.fillStyle = '#d7dfeb'; ctx.fillRect(0, 0, 640, 70); ctx.fillStyle = '#e6ecf5'; ctx.fillRect(0, 0, 640, 4); ctx.fillStyle = '#b9c5d6'; ctx.fillRect(0, 62, 640, 8); ctx.fillStyle = '#8f9db3'; ctx.fillRect(0, 70, 640, 3);
+  for (const wx of [14, 124]){ ctx.fillStyle = '#6b7a93'; ctx.fillRect(wx, 8, 100, 48); skyline(wx + 3, 11, 94, 42); ctx.fillStyle = '#6b7a93'; ctx.fillRect(wx + 49, 11, 2, 42); ctx.fillRect(wx + 3, 31, 94, 2); }
+  ctx.fillStyle = '#1b2538'; ctx.fillRect(240, 8, 184, 50); ctx.fillStyle = '#2ecc71'; ctx.font = '9px "Press Start 2P", monospace'; ctx.textBaseline = 'top'; ctx.textAlign = 'left'; ctx.fillText('US DESK', 262, 16);
+  ctx.fillStyle = '#9fb0c8'; ctx.font = '5px "Press Start 2P", monospace'; ctx.fillText('WALL ST  09:35 ET', 262, 32); ctx.fillStyle = '#2ecc71'; ctx.fillRect(250, 44, Math.max(2, (frame >> 1) % 160), 2);
+  ctx.fillStyle = '#0b1220'; ctx.fillRect(436, 6, 198, 56); ctx.fillStyle = '#9fb0c8'; ctx.font = '5px "Press Start 2P", monospace'; ctx.fillText('TICKER', 441, 10);
+  const m = rec ? rec.m : null;
+  if (m){ ctx.fillStyle = '#e9eef7'; ctx.font = '8px "Press Start 2P", monospace'; ctx.fillText(`${rec.sym} ${fmtPx(m.px)}`, 441, 19); ctx.fillStyle = (m.chg || 0) >= 0 ? '#2ecc71' : '#e74c3c'; ctx.font = '6px "Press Start 2P", monospace'; ctx.fillText(`${fmtPct(m.chg)}  6M ${fmtPct(m.r6m)}`, 441, 31); ctx.fillStyle = rec.v && rec.v.long ? '#2ecc71' : '#e74c3c'; ctx.fillText(rec.v ? (rec.v.long ? 'SIGNAL ON' : 'SIGNAL OFF') : 'NO DATA', 441, 42); ctx.fillStyle = '#9fb0c8'; ctx.font = '5px "Press Start 2P", monospace'; ctx.fillText(`SCORE ${rec.sc.total}/100`, 441, 53); }
+  const t = new Date(); ctx.fillStyle = '#0b1220'; ctx.fillRect(598, 10, 36, 20); ctx.fillStyle = '#2ecc71'; ctx.font = '6px "Press Start 2P", monospace'; ctx.fillText(String(t.getHours()).padStart(2, '0') + (tick ? ':' : ' ') + String(t.getMinutes()).padStart(2, '0'), 601, 17);
+  for (let yy = 73; yy < 165; yy += 8) for (let xx = 0; xx < 302; xx += 40){ ctx.fillStyle = ((xx / 40 + ((yy - 73) / 8)) & 1) ? '#c9a876' : '#d6b685'; ctx.fillRect(xx, yy, 40, 8); ctx.fillStyle = '#b8966a'; ctx.fillRect(xx, yy + 7, 40, 1); }
+  ctx.fillStyle = '#2f5f45'; ctx.fillRect(0, 170, 302, 95); ctx.fillStyle = '#376d4f'; for (let yy = 172; yy < 265; yy += 6) for (let xx = ((yy / 6) & 1) * 3; xx < 302; xx += 6) ctx.fillRect(xx, yy, 1, 1);
+  for (let r = 0; r * 12 < 90; r++) for (let c2 = 0; c2 * 12 < 302; c2++){ ctx.fillStyle = ((r + c2) & 1) ? '#9aa7b8' : '#a7b3c3'; ctx.fillRect(c2 * 12, 270 + r * 12, Math.min(12, 302 - c2 * 12), Math.min(12, 90 - r * 12)); }
+  ctx.fillStyle = '#e4e8ef'; ctx.fillRect(312, 73, 328, 130); ctx.fillStyle = '#d3d9e3'; for (let k = 0; k < 458; k += 18) for (let tt = 0; tt < 130; tt++){ const xx = 312 + k - tt, yy = 73 + tt; if (xx >= 312 && xx < 640) ctx.fillRect(xx, yy, 1, 1); }
+  for (let r = 0; r * 12 < 150; r++) for (let c2 = 0; c2 * 12 < 328; c2++){ ctx.fillStyle = ((r + c2) & 1) ? '#8d9aad' : '#99a6b8'; ctx.fillRect(312 + c2 * 12, 210 + r * 12, Math.min(12, 328 - c2 * 12), Math.min(12, 150 - r * 12)); }
+  ctx.fillStyle = '#1f2a44'; ctx.fillRect(408, 96, 140, 70); ctx.fillStyle = '#2a385a'; ctx.fillRect(412, 100, 132, 62);
+  ctx.fillStyle = '#7f8ea6'; ctx.fillRect(302, 73, 10, 287); ctx.fillStyle = '#b7c3d6'; ctx.fillRect(304, 73, 2, 287); ctx.fillStyle = 'rgba(159,211,255,.25)'; ctx.fillRect(306, 73, 4, 287);
+  ctx.fillStyle = '#7f8ea6'; ctx.fillRect(0, 165, 302, 5); ctx.fillRect(0, 265, 302, 5); ctx.fillRect(312, 203, 328, 7); ctx.fillStyle = '#9fb0c8'; ctx.fillRect(0, 165, 302, 1); ctx.fillRect(0, 265, 302, 1); ctx.fillRect(312, 203, 328, 1);
+  ctx.font = '6px "Press Start 2P", monospace';
+  const lbl = (txt, x, y, col) => { ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.fillRect(x - 3, y - 2, txt.length * 6.2 + 6, 10); ctx.fillStyle = col; ctx.fillText(txt, x, y); };
+  lbl('MARKET DESK', 8, 79, '#dff0ff'); lbl('RESEARCH LOUNGE', 8, 176, '#d9ffe6'); lbl('TRADING DESK', 8, 276, '#fff2c9'); lbl('CEO', 320, 79, '#1f2a44'); lbl('RISK COMMITTEE', 320, 216, '#ffd9b8');
+  const dp = rec ? rec.dp : { bull: 0, bear: 0 };
+  ctx.fillStyle = '#f8f9fb'; ctx.fillRect(266, 178, 32, 48); ctx.fillStyle = '#1b1a16'; ctx.font = '5px "Press Start 2P", monospace'; ctx.fillText('+', 271, 181); ctx.fillText('-', 287, 181);
+  ctx.fillStyle = '#2ecc71'; ctx.fillRect(270, 222 - Math.min(6, dp.bull) * 6, 7, Math.min(6, dp.bull) * 6); ctx.fillStyle = '#e74c3c'; ctx.fillRect(286, 222 - Math.min(6, dp.bear) * 6, 7, Math.min(6, dp.bear) * 6); ctx.fillStyle = '#8f95a6'; ctx.fillRect(268, 223, 28, 1);
+  ctx.fillStyle = '#3a3f52'; ctx.fillRect(268, 282, 30, 54); ctx.fillStyle = '#e9eef7'; ctx.fillRect(272, 286, 22, 18); ctx.fillStyle = '#2ecc71'; ctx.fillRect(275, 290, 16, 2); ctx.fillStyle = '#e74c3c'; ctx.fillRect(275, 296, 10, 2); ctx.fillStyle = '#5b3d21'; ctx.fillRect(272, 312, 22, 16); ctx.fillStyle = '#f5f0c8'; ctx.fillRect(276, 316, 6, 8);
+  ctx.fillStyle = '#7a5230'; ctx.fillRect(596, 160, 18, 18); ctx.fillStyle = '#2f9e5b'; ctx.fillRect(590, 138, 30, 22); ctx.fillStyle = '#48d17f'; ctx.fillRect(598, 130, 14, 10);
+  ctx.fillStyle = '#4a506a'; ctx.fillRect(330, 300, 40, 46); ctx.fillStyle = '#5c6480'; ctx.fillRect(334, 304, 32, 38); ctx.fillStyle = '#c9d2e3'; ctx.fillRect(346, 318, 8, 8); ctx.fillStyle = '#2ecc71'; ctx.fillRect(349, 321, 2, 2);
+  ctx.fillStyle = '#f8f9fb'; ctx.fillRect(540, 222, 70, 44); ctx.fillStyle = '#1b1a16'; ctx.font = '5px "Press Start 2P", monospace'; ctx.fillText('LIMITS', 546, 226); ctx.fillStyle = '#e74c3c'; ctx.fillRect(546, 236, 40, 3); ctx.fillStyle = '#e67e22'; ctx.fillRect(546, 245, 28, 3); ctx.fillStyle = '#2ecc71'; ctx.fillRect(546, 254, 56, 3); ctx.fillStyle = '#3a3f52'; ctx.fillRect(572, 266, 6, 20);
+  ctx.fillStyle = '#3a3f52'; ctx.fillRect(620, 236, 4, 40); ctx.fillStyle = rec && rec.halted ? (tick ? '#ff3b3b' : '#7a1c1c') : '#3b5a3b'; ctx.fillRect(615, 226, 14, 12);
+  ctx.fillStyle = '#5b3d21'; ctx.fillRect(330, 82, 60, 36); for (const [bx, bc] of [[334, '#4f8cf0'], [340, '#e74c3c'], [346, '#f1c40f'], [352, '#2ecc71'], [358, '#9b59b6'], [364, '#e9e7df'], [370, '#2fb7c9'], [376, '#e67e22']]){ ctx.fillStyle = bc; ctx.fillRect(bx, 86, 4, 12); ctx.fillRect(bx + 1, 102, 4, 12); }
+  ctx.fillStyle = '#e9eef7'; ctx.fillRect(560, 86, 40, 26); ctx.fillStyle = '#2ecc71'; ctx.fillRect(566, 92, 28, 14); ctx.fillStyle = '#0b1220'; ctx.font = '5px "Press Start 2P", monospace'; ctx.fillText('NYSE', 569, 96);
+  oval(150, 232, 76, 22, '#8a5a32'); oval(150, 230, 72, 19, '#a3703f'); oval(150, 232, 60, 13, '#6f4a2a');
+  ctx.fillStyle = '#f3efe2'; ctx.fillRect(116, 224, 16, 10); ctx.fillRect(168, 226, 16, 10); ctx.fillStyle = '#1b1a16'; ctx.fillRect(140, 222, 20, 2); ctx.fillStyle = '#2b3142'; ctx.fillRect(141, 214, 18, 8); ctx.fillStyle = '#58c4ff'; ctx.fillRect(142, 215, 16, 6);
+  const lit = rec && rec.v ? (rec.v.long ? '#2ecc71' : '#58c4ff') : '#58c4ff';
+  for (const s of STAFF){
+    const atDesk = !TABLE.has(s.id); const w = s.id === 'ceo' ? 90 : 48, dx = s.x - w / 2, dy = s.y + 4;
+    if (atDesk) chairBack(s.x - 7, dy - 14, 14);
+    sprite(s, s.x, atDesk ? dy + 9 : s.y, { bob: bob && s.id !== 'ceo', typing: atDesk && s.id !== 'ceo' && s.id !== 'risk', tick, speak: speaking === s.id });
+    if (atDesk) deskFront(dx, dy, w, lit, { busy: s.id !== 'ceo', dual: s.id === 'trader', mug: s.id === 'trader' ? '#e74c3c' : s.id === 'index' ? '#4f8cf0' : null, papers: s.id === 'risk' || s.id === 'sizer', lamp: s.id === 'ceo', plant: s.id === 'flow' || s.id === 'ceo' });
+    nameTag(s, s.x, atDesk ? dy + 24 : s.y + 3);
+  }
+  if (rec && rec.acted){ ctx.fillStyle = '#e74c3c'; ctx.fillRect(440, 148, 10, 10); ctx.fillStyle = '#1b1a16'; ctx.fillRect(443, 151, 4, 4); }
+}
+function officeLoop(){ if (!$('meet').hidden) drawOffice(lastRec); requestAnimationFrame(officeLoop); }
+function portrait(s){ const c = document.createElement('canvas'); c.width = 20; c.height = 14; drawSprite(c.getContext('2d'), s, 0, 0, {}); return c; }
+function ensureBubbles(){
+  const box = $('officeBox');
+  for (const s of STAFF){ if ($('b_' + s.id)) continue; const b = document.createElement('div'); b.className = 'bubble'; b.id = 'b_' + s.id; box.appendChild(b); }
+  for (const s of STAFF){ const b = $('b_' + s.id), atDesk = !TABLE.has(s.id), below = s.dept === 'market'; const top = below ? (s.y + 4 + 36) : ((atDesk ? s.y + 4 + 9 : s.y) - 30 - 4); const xPct = s.x / 640 * 100, left = Math.min(74, Math.max(26, xPct)); b.classList.toggle('below', below); b.style.left = left + '%'; b.style.top = (top / 360 * 100) + '%'; b.style.setProperty('--tail', Math.min(90, Math.max(10, 50 + (xPct - left) / 48 * 100)) + '%'); }
+}
+function hideBubbles(){ for (const s of STAFF){ const b = $('b_' + s.id); if (b) b.classList.remove('show'); } speaking = null; }
+function showBubble(id, text){ hideBubbles(); const s = BY[id], b = $('b_' + id); b.innerHTML = `<span class="dept ${s.dept}">${DEPT[s.dept]}</span><b>${esc(s.name)}</b> ${esc(text)}`; b.classList.add('show'); speaking = id; }
+let flowTimer = null;
+function setStage(k, done){ for (const d of document.querySelectorAll('#pipe div')){ const st = +d.dataset.stage; d.className = done ? 'done' : (st === k ? 'on' : st < k ? 'done' : ''); } }
+function addLog(rec, id, text, header){
+  const box = $('log');
+  if (header){ const h = document.createElement('div'); h.className = 'day'; h.textContent = `${rec.date} ${rec.sym} 회의 (${RULE_KO[rec.rule]})`; box.appendChild(h); }
+  const s = BY[id]; const el = document.createElement('div'); el.className = 'line'; const av = document.createElement('div'); av.className = 'avatar'; av.appendChild(portrait(s));
+  const body = document.createElement('div'); body.innerHTML = `<div class="meta"><span class="dept ${s.dept}">${DEPT[s.dept]}</span><span class="who">${esc(s.name)}</span></div><div class="txt">${esc(text)}</div>`;
+  el.appendChild(av); el.appendChild(body); box.appendChild(el); while (box.children.length > 160) box.removeChild(box.firstChild); box.scrollTop = box.scrollHeight;
+}
+let meetingSym = null;
+function runMeeting(force){
+  const sym = S.sel; if (!force && meetingSym === sym && lastRec) return; meetingSym = sym;
+  clearTimeout(flowTimer); hideBubbles(); const rec = meetingRec(sym); lastRec = rec;
+  $('log').innerHTML = ''; setT('logDate', `${sym} ${nameOf(sym)}`); setT('flowVerdict', '—');
+  if (!rec){ setT('flowStatus', '데이터 부족 (200일 이상 일봉 필요)'); return; }
+  setT('flowStatus', '회의 진행 중'); let k = 0;
+  const next = () => { if (k >= ORDER.length){ setStage(3, true); setT('flowStatus', '결재 완료'); setT('flowVerdict', rec.v ? `${sym} ${rec.v.long ? '보유' : '현금'} (${rec.sc.total}점)` : '—'); flowTimer = setTimeout(hideBubbles, 4000); return; } const id = ORDER[k]; setStage(STAGE[id], false); showBubble(id, rec.L[id]); addLog(rec, id, rec.L[id], k === 0); setT('flowStatus', `${DEPT[BY[id].dept]}, ${BY[id].role} 보고 중`); k++; flowTimer = setTimeout(next, id === 'ceo' ? 3000 : 2300); };
+  next();
+}
+$('btnReplayMeeting').onclick = () => runMeeting(true);
+$('btnMeetSym').onclick = () => openSymbol(S.sel);
+$('btnMeetPick').onclick = () => { selectTab('watch'); $('q').focus(); };
+{ const g = $('staffGrid'); for (const s of STAFF){ const d = document.createElement('div'); d.appendChild(portrait(s)); const t = document.createElement('div'); t.innerHTML = `<span class="dept ${s.dept}">${DEPT[s.dept]}</span><b>${esc(s.name)}</b><span>${esc(s.role)}</span>`; d.appendChild(t); g.appendChild(d); } }
+ensureBubbles(); requestAnimationFrame(officeLoop);
+
 // ------------------------------------------------------------ 설치 / 탭
 if (/^https:/.test(location.protocol) && 'serviceWorker' in navigator && !/claude/.test(location.hostname)) { navigator.serviceWorker.register('sw.js').catch(() => {}); }
 let installEvt = null; window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; $('btnInstall').hidden = false; });
 $('btnInstall').onclick = async () => { if (!installEvt) return; installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $('btnInstall').hidden = true; };
 { const ios = /iphone|ipad|ipod/i.test(navigator.userAgent), standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; let dismissed = false; try { dismissed = localStorage.getItem('usoffice.ioshint') === '1'; } catch (e) {} if (ios && !standalone && !dismissed && /^https:/.test(location.protocol)) $('iosHint').hidden = false; $('iosHintClose').onclick = () => { $('iosHint').hidden = true; try { localStorage.setItem('usoffice.ioshint', '1'); } catch (e) {} }; }
 const activeTab = () => { const t = document.querySelector('.tab[aria-selected=true]'); return t ? t.dataset.tab : 'watch'; };
-function selectTab(name){ for (const t of document.querySelectorAll('.tab')) t.setAttribute('aria-selected', t.dataset.tab === name ? 'true' : 'false'); for (const s of document.querySelectorAll('main > section')) s.hidden = s.id !== name; try { localStorage.setItem('usdesk.tab', name); } catch (e) {} if (name === 'watch') renderWatch(); if (name === 'sym') renderSymbol(); if (name === 'trades') renderTrades(); if (name === 'bot'){ renderBot(); renderBotSyms(); loadControl().then(loadBotStatus); } }
+function selectTab(name){ for (const t of document.querySelectorAll('.tab')) t.setAttribute('aria-selected', t.dataset.tab === name ? 'true' : 'false'); for (const s of document.querySelectorAll('main > section')) s.hidden = s.id !== name; try { localStorage.setItem('usdesk.tab', name); } catch (e) {} if (name === 'meet') runMeeting(false); if (name === 'watch') renderWatch(); if (name === 'sym') renderSymbol(); if (name === 'trades') renderTrades(); if (name === 'bot'){ renderBot(); renderBotSyms(); loadControl().then(loadBotStatus); } }
 for (const t of document.querySelectorAll('.tab')) { t.addEventListener('click', () => selectTab(t.dataset.tab)); t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); selectTab(t.dataset.tab); } }); }
 window.addEventListener('resize', () => { if (activeTab() === 'sym') drawChart(S.sel, botSpecs()[S.sel] ? botSpecs()[S.sel].rule : S.rule); if (activeTab() === 'trades') drawEquity(); });
 document.addEventListener('visibilitychange', () => { if (!document.hidden){ loadBotStatus(); loadQuotes(); liveQuotes(); } });
 
 // ------------------------------------------------------------ 시작
 (async () => {
-  let tab = 'watch'; try { tab = localStorage.getItem('usdesk.tab') || 'watch'; } catch (e) {}
-  renderWatch(); renderAccount(); renderBot(); selectTab(['watch', 'sym', 'trades', 'bot'].includes(tab) ? tab : 'watch');
-  await loadControl(); await loadBotStatus(); await loadQuotes(); refreshUniverse(); liveQuotes();
+  let tab = 'meet'; try { if (localStorage.getItem('usdesk.v21') !== '1'){ localStorage.setItem('usdesk.v21', '1'); localStorage.setItem('usdesk.tab', 'meet'); } tab = localStorage.getItem('usdesk.tab') || 'meet'; } catch (e) {}
+  renderWatch(); renderAccount(); renderBot(); selectTab(['meet', 'watch', 'sym', 'trades', 'bot'].includes(tab) ? tab : 'meet');
+  await loadControl(); await loadBotStatus(); await loadQuotes(); if (activeTab() === 'meet') runMeeting(true); refreshUniverse(); liveQuotes();
   setInterval(loadBotStatus, 3 * 60 * 1000); setInterval(loadQuotes, 5 * 60 * 1000); setInterval(liveQuotes, 60 * 1000);
 })();
 </script>
