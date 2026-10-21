@@ -7,7 +7,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-YyD9La2BxJ61WWgF737U5MiC5oTzNrjXooecbjpANdY='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://data-api.binance.vision https://api.binance.com https://fapi.binance.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-YD/ujbOw288+g7Snsnc4cjkRF7Oc8CIeNKykB3KVIDU='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://data-api.binance.vision https://api.binance.com https://fapi.binance.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <title>비트 오피스</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="referrer" content="no-referrer">
@@ -186,7 +186,7 @@ select{accent-color:var(--accent);background:var(--panel2);color:var(--ink);bord
 <div class="wrap">
 <header>
   <div class="brand">
-    <div class="logo">BIT OFFICE<small>직원 13명이 회의하고 규칙으로 결재하는 비트코인 사무실 · v3.6</small></div>
+    <div class="logo">BIT OFFICE<small>직원 13명이 회의하고 규칙으로 결재하는 비트코인 사무실 · v3.7 · <a href="us/" style="color:var(--accent);text-decoration:none">🏙 US 오피스 →</a></small></div>
     <button id="btnInstall" hidden style="font-size:12.5px;padding:8px 12px;border-radius:999px;background:linear-gradient(180deg,var(--accent2),var(--accent));color:var(--accent-ink);border:0">📲 앱으로 설치</button><div class="ticker"><canvas id="spark" width="144" height="52"></canvas><span><span class="px" id="tkPx">—</span> <span class="chg" id="tkChg">—</span><br><span class="note" id="tkDate">—</span></span></div>
   </div>
   <div class="banner" id="iosHint" hidden style="margin:8px 0 0;font-size:12px;padding:8px 10px">아이폰: 아래 공유 버튼(⬆) → 목록 아래로 → <b>홈 화면에 추가</b> 하면 앱처럼 열려요. <button class="ghost" id="iosHintClose" style="padding:2px 8px;font-size:11px;margin-left:6px">닫기</button></div>
@@ -202,7 +202,7 @@ select{accent-color:var(--accent);background:var(--panel2);color:var(--ink);bord
 <section id="office">
   <div class="office" id="officeBox">
     <canvas id="officeCv" width="640" height="360"></canvas>
-    <div class="stamp" id="stamp">REPLAY</div><div class="stamp" style="right:auto;left:8px;opacity:.7">v3.6</div>
+    <div class="stamp" id="stamp">REPLAY</div><div class="stamp" style="right:auto;left:8px;opacity:.7">v3.7</div>
   </div>
   <div class="pipe" id="pipe"><div data-stage="0" data-n="1">시황 보고</div><div data-stage="1" data-n="2">리서치 토론</div><div data-stage="2" data-n="3">리스크·집행</div><div data-stage="3" data-n="4">대표 결재</div></div>
   <div class="statusline"><span id="flowStatus">회의 준비 중</span><span><b id="flowVerdict">—</b></span></div>
@@ -280,29 +280,6 @@ select{accent-color:var(--accent);background:var(--panel2);color:var(--ink);bord
       <button id="btnSaveCtl">설정 저장</button>
     </div>
     <div class="note" id="ctlMsg" style="margin-top:8px"></div>
-  </div>
-
-  <div class="panel">
-    <div class="ph"><h2>미국 ETF 봇 · 관제실</h2><span class="sub" id="usWhen">아직 보고 없음</span></div>
-    <div class="ctl-head">
-      <span class="chip" id="usChipBot"><i></i>봇 연결 안 됨</span>
-      <span class="chip" id="usChipTrading"><i></i>거래 꺼짐</span>
-      <span class="chip" id="usChipMode"><i></i>—</span>
-    </div>
-    <div class="stats" style="margin-top:12px">
-      <div class="stat"><div class="k">자산 (USD)</div><div class="v" id="usEq">—</div></div>
-      <div class="stat"><div class="k">현금</div><div class="v" id="usCash">—</div></div>
-      <div class="stat"><div class="k">보유</div><div class="v" id="usHold" style="white-space:normal;font-size:13px">—</div></div>
-      <div class="stat"><div class="k">신호 (목표)</div><div class="v" id="usSig" style="white-space:normal;font-size:13px">—</div></div>
-      <div class="stat"><div class="k">마지막 판정</div><div class="v" id="usAct">—</div></div>
-      <div class="stat"><div class="k">다음 판정</div><div class="v" id="usNext">—</div></div>
-    </div>
-    <div class="bigbtns">
-      <button class="bigbtn start" id="usStart">▶ 거래 시작<small>다음 09:35 ET 판정부터 주문</small></button>
-      <button class="bigbtn stop" id="usStop">⏸ 거래 중지<small>보유는 그대로</small></button>
-      <button class="bigbtn flat" id="usFlat">⛔ 전량 매도 후 중지<small>장중이면 10분 안에</small></button>
-    </div>
-    <div class="note" id="usMsg" style="margin-top:8px">규칙: 골든크로스 50/200 · 롱만 · 한국투자증권(모의투자부터). 종목·비중은 PC <code>문서\us_index_bot\.env</code>의 US_SYMBOLS.</div>
   </div>
 
   <div class="panel">
@@ -817,46 +794,6 @@ function renderControl(){
   const rf = document.getElementById('ghRepo'); if (document.activeElement !== rf && !rf.value) rf.value = GH.repo;
   document.getElementById('netNote').hidden = !GH.netBlocked;
 }
-// ------------------------------------------------------------ 미국 ETF 봇 (us_status.json / us_control.json)
-const US = { status: null, control: null };
-const US_ACTION_KO = {trade:'주문 실행', hold:'유지', standby:'대기 (거래 시작 전)', blocked:'차단됨', 'FLATTEN (app)':'앱 요청 매도', 'FLATTEN+HALT':'비상 매도·정지', error:'오류', paper:'판정만'};
-async function loadUS(){
-  let st = null, c = null;
-  if (GH.token) { try { st = (await ghGet('us_status.json')).data; } catch(e) {} try { c = (await ghGet('us_control.json')).data; } catch(e) {} }
-  if (!st) { for (const u of ['us_status.json?t=' + Date.now(), `https://raw.githubusercontent.com/${GH.repo}/main/us_status.json?t=${Date.now()}`]) { try { const r = await fetch(u, {cache:'no-store'}); if (r.ok) { st = await r.json(); break; } } catch(e) {} } }
-  if (st) US.status = st; if (c) US.control = c;
-  renderUS();
-}
-async function patchUS(patch, msg){
-  if (!GH.token) { setT('usMsg', '먼저 아래 "연결"에서 GitHub 토큰을 저장하세요.'); return false; }
-  try { let sha = undefined, data = {}; try { const g = await ghGet('us_control.json'); sha = g.sha; data = g.data; } catch(e) {}
-    const next = Object.assign({}, data, patch, {updated: new Date().toISOString(), by: 'app'}); await ghPut('us_control.json', next, sha, 'app: ' + msg); US.control = next; renderUS(); setT('usMsg', `저장됨: ${msg}. 봇이 10분 안에 읽고, 주문은 미국 장 열린 뒤(09:35 ET) 판정 때 나갑니다.`); return true; }
-  catch(e){ setT('usMsg', '저장 실패: ' + e.message); return false; }
-}
-function renderUS(){
-  const st = US.status, c = US.control;
-  const fresh = st && st.time && (Date.now() - new Date(st.time).getTime()) < 4*24*3600*1000;   // 주말 포함 4일
-  if (st && st.time){ setT('usWhen', `마지막 보고 ${ago(st.time)} · ${st.time.replace('T',' ').slice(0,16)} UTC`); chip('usChipBot', fresh ? 'ok' : 'warn', fresh ? '봇 연결됨' : '봇 보고 오래됨'); }
-  else { setT('usWhen', '아직 보고 없음'); chip('usChipBot', '', '봇 연결 안 됨'); }
-  const ctlOn = c ? c.trading==='on' : null, botOn = !!(st && st.trading==='on');
-  if (c && c.kill) chip('usChipTrading','bad','비상 정지 (kill)');
-  else if (c && c.flatten) chip('usChipTrading','bad','전량 매도 요청됨');
-  else if (ctlOn===true && botOn) chip('usChipTrading','ok','거래 켜짐');
-  else if (ctlOn===true) chip('usChipTrading','warn','거래 시작 요청됨 · 봇 반영 대기');
-  else if (ctlOn===null && botOn) chip('usChipTrading','ok','거래 켜짐');
-  else chip('usChipTrading','warn','거래 꺼짐 (대기)');
-  chip('usChipMode', '', st ? (st.paper===true ? '모의투자 · ' : st.paper===false ? '실전 · ' : '') + (st.rule ? {golden:'골든크로스 50/200', tsmom:'12개월 모멘텀', sma10:'10개월 이평'}[st.rule] || st.rule : '') : '—');
-  if (st && st.time){
-    setT('usEq', st.equity!=null ? '$'+fmtUsd(st.equity) : '—'); setT('usCash', st.cash!=null ? '$'+fmtUsd(st.cash) : '—');
-    const h = st.holdings || {}; setT('usHold', Object.keys(h).length ? Object.entries(h).map(([k,v]) => `${k} ${v}주`).join(' · ') : '현금');
-    const sg = st.signals || {}; setT('usSig', Object.keys(sg).length ? Object.entries(sg).map(([k,v]) => `${k} ${Math.round((v.target_w ?? v.target ?? 0)*100)}%`).join(' · ') : '—');
-    setT('usAct', (US_ACTION_KO[st.action] || st.action || '—') + ((st.orders||[]).length ? ` · 주문 ${st.orders.length}건` : '') + (st.error ? ' · 오류' : ''));
-    setT('usNext', st.next_run ? st.next_run.replace('T',' ').slice(5,16) + ' ET' : '—');
-  }
-}
-document.getElementById('usStart').onclick = () => askConfirm('미국 ETF 봇 거래를 시작할까요? 다음 09:35 ET 판정부터 규칙대로 주문합니다.', () => patchUS({trading:'on', kill:false, flatten:false}, '미국 거래 시작'));
-document.getElementById('usStop').onclick = () => askConfirm('미국 ETF 봇 신규 주문을 멈출까요? 보유는 그대로 둡니다.', () => patchUS({trading:'off', flatten:false}, '미국 거래 중지'));
-document.getElementById('usFlat').onclick = () => askConfirm('미국 ETF 전량 매도 후 중지할까요? 장중이면 10분 안에, 아니면 다음 장에 팝니다.', () => patchUS({flatten:true, trading:'off'}, '미국 전량 매도 후 중지'));
 let pendingAction = null;
 function askConfirm(text, fn){ pendingAction = fn; setT('confirmText', text); document.getElementById('confirmBox').hidden = false; }
 document.getElementById('confirmYes').onclick = async () => { document.getElementById('confirmBox').hidden = true; if (pendingAction) await pendingAction(); pendingAction = null; };
@@ -883,7 +820,7 @@ document.getElementById('btnUnlock').onclick = async () => { const pin = documen
 document.getElementById('unlockPin').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btnUnlock').click(); });
 document.getElementById('btnLock').onclick = () => { GH.token = ''; GH.locked = true; try { sessionStorage.removeItem('bitoffice.gh.session'); } catch(e) {} GH.control = null; chip('chipNet','','앱 ↔ GitHub 잠김'); renderControl(); setT('ctlMsg', '잠갔어요. 버튼을 쓰려면 PIN으로 풀어야 합니다.'); };
 document.getElementById('btnClearToken').onclick = () => { GH.token = ''; GH.locked = false; GH.hasEnc = false; try { localStorage.removeItem('bitoffice.gh'); localStorage.removeItem('bitoffice.gh.enc'); sessionStorage.removeItem('bitoffice.gh.session'); } catch(e) {} GH.control = null; chip('chipNet','','앱 ↔ GitHub 미연결'); document.getElementById('ghToken').value = ''; renderControl(); setT('ctlMsg', '토큰을 지웠습니다.'); };
-document.getElementById('btnRefresh').onclick = async () => { await loadControl(); await loadBotStatus(); await loadUS(); setT('ctlMsg', '새로고침 ' + new Date().toLocaleTimeString('ko-KR')); };
+document.getElementById('btnRefresh').onclick = async () => { await loadControl(); await loadBotStatus(); setT('ctlMsg', '새로고침 ' + new Date().toLocaleTimeString('ko-KR')); };
 
 // ------------------------------------------------------------ AI debate (claude.ai 아티팩트 안에서만)
 async function initAI(){
@@ -913,7 +850,7 @@ function selectTab(name){
   for (const t of document.querySelectorAll('.tab')) t.setAttribute('aria-selected', t.dataset.tab===name ? 'true' : 'false');
   for (const s of document.querySelectorAll('main > section')) s.hidden = s.id !== name;
   try { localStorage.setItem('bitoffice.tab', name); } catch(e){}
-  if (name==='trade') drawChart(S.i); if (name==='bot') { loadControl().then(loadBotStatus); loadUS(); }
+  if (name==='trade') drawChart(S.i); if (name==='bot') { loadControl().then(loadBotStatus); }
 }
 for (const t of document.querySelectorAll('.tab')) { t.addEventListener('click', () => selectTab(t.dataset.tab)); t.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); selectTab(t.dataset.tab); } }); }
 document.getElementById('btnStep').onclick = () => { S.auto=false; step(); };
@@ -941,7 +878,7 @@ if (!load()) { S.bhStart = priceAt(FIRST); decide(true); }
 document.getElementById('selShort').value = String(S.shortSize); document.getElementById('selSpeed').value = String(S.speed); document.getElementById('selVenue').value = S.venue; document.getElementById('selShort').disabled = NOSHORT(S.venue);
 try { const t = localStorage.getItem('bitoffice.tab'); if (t) selectTab(t); } catch(e){}
 renderAll(); loop(); runMeeting(); initAI(); renderControl();
-(async () => { const ok = await loadLive(); await loadFunding(); if (ok) { save(); renderAll(); runMeeting(); } if (GH.token) await loadControl(); await loadBotStatus(); loadUS(); setInterval(() => { loadBotStatus(); loadUS(); }, 60000); })();
+(async () => { const ok = await loadLive(); await loadFunding(); if (ok) { save(); renderAll(); runMeeting(); } if (GH.token) await loadControl(); await loadBotStatus(); setInterval(loadBotStatus, 60000); })();
 })();
 </script>
 
