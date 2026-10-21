@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-aVyMj2qZLjzdtTQvwV/f03UPQLS1CrcC+nNqahuvdVg='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://finnhub.io; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-fLmaYW8/QFh0lURLAR5d+kOHjZhoUOBKZn2aCfm9xd4='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://finnhub.io; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -411,7 +411,7 @@ function verdictOf(sym, rule){
 }
 
 // ------------------------------------------------------------ 상태 (봇·시세·제어)
-const QUOTES = {}; let QTIME = null;
+const QUOTES = {}; let QTIME = null, QLAST = 0;
 let ST = null, CTL = null;
 const S = { sel: 'QQQ', rule: 'golden', filter: 'all', sort: 'score', q: '', range: 260 };
 try { const j = JSON.parse(localStorage.getItem('usdesk.v2') || 'null'); if (j){ if (j.sel && DATA[j.sel]) S.sel = j.sel; if (RULES.includes(j.rule)) S.rule = j.rule; if (j.sort) S.sort = j.sort; if (j.range) S.range = j.range; } } catch (e) {}
@@ -456,7 +456,7 @@ function renderWatch(){
     frag.appendChild(b);
   }
   box.replaceChildren(frag);
-  const q0 = QTIME ? `시세 ${ago(QTIME)}` : '시세: 마지막 일봉 종가'; const u0 = UNI.updated ? `데이터 ${UNI.updated.slice(0, 10)}` : '';
+  const q0 = QLAST ? `시세 ${fmtTime(new Date(QLAST * 1000).toISOString())} 기준` : (QTIME ? `시세 ${ago(QTIME)}` : '시세: 마지막 일봉 종가'); const u0 = UNI.updated ? `데이터 ${UNI.updated.slice(0, 10)}` : '';
   setT('wlFoot', `${u0}, ${q0}. 점수는 추세·모멘텀·상대강도·변동성·시장·수급 100점 만점, 보유/현금은 ${RULE_KO[S.rule]} 기준(봇 종목은 봇 규칙).`);
   if (!rows.length){ const n = $('wlNote'); n.hidden = false; n.textContent = q ? `'${S.q}' 에 맞는 종목이 없어요. PC 봇 .env 의 US_WATCH 에 티커를 넣으면 다음 갱신 때 들어옵니다.` : '표시할 종목이 없어요.'; } else $('wlNote').hidden = true;
 }
@@ -624,7 +624,7 @@ async function loadBotStatus(){
 async function loadQuotes(){
   const q = await fetchJson('../us_quotes.json'); if (!q || !q.q) return;
   if (QTIME && q.time && q.time <= QTIME) return;
-  for (const [s, v] of Object.entries(q.q)) QUOTES[s] = v; QTIME = q.time; WLCACHE = null;
+  for (const [s, v] of Object.entries(q.q)){ QUOTES[s] = v; if (v.t > QLAST) QLAST = v.t; } QTIME = q.time; WLCACHE = null;
   if (activeTab() === 'watch') renderWatch(); if (activeTab() === 'sym') renderSymbol(); if (activeTab() === 'trades') renderTrades();
 }
 async function refreshUniverse(){
@@ -636,7 +636,7 @@ async function refreshUniverse(){
 const FH = { key: '' }; try { FH.key = localStorage.getItem('usdesk.fh') || ''; } catch (e) {}
 async function liveQuotes(){
   if (!FH.key) return; const syms = Array.from(new Set([S.sel, ...Object.keys(botSpecs()), ...Object.keys((ST && ST.positions) || (ST && ST.holdings) || {})])).filter(s => DATA[s] && !/^\^/.test(s)).slice(0, 12);
-  let n = 0; for (const s of syms){ try { const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(s)}&token=${encodeURIComponent(FH.key)}`); if (!r.ok) { if (r.status === 401 || r.status === 403) { setT('fhMsg', '시세 키가 거부됐어요 (' + r.status + ').'); return; } continue; } const j = await r.json(); if (!j || !j.c) continue; QUOTES[s] = Object.assign({}, QUOTES[s] || {}, { price: j.c, prev: j.pc, chg: j.pc ? j.c / j.pc - 1 : null, t: j.t, live: true }); n++; } catch (e) { break; } }
+  let n = 0; for (const s of syms){ try { const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(s)}&token=${encodeURIComponent(FH.key)}`); if (!r.ok) { if (r.status === 401 || r.status === 403) { setT('fhMsg', '시세 키가 거부됐어요 (' + r.status + ').'); return; } continue; } const j = await r.json(); if (!j || !j.c) continue; QUOTES[s] = Object.assign({}, QUOTES[s] || {}, { price: j.c, prev: j.pc, chg: j.pc ? j.c / j.pc - 1 : null, t: j.t, live: true }); if (j.t > QLAST) QLAST = j.t; n++; } catch (e) { break; } }
   if (n){ QTIME = new Date().toISOString(); WLCACHE = null; if (activeTab() === 'watch') renderWatch(); if (activeTab() === 'sym') renderSymbol(); if (activeTab() === 'trades') renderTrades(); }
 }
 $('btnSaveFh').onclick = () => { const v = $('fhKey').value.trim(); if (v && !v.startsWith('••')) FH.key = v; if (!v) FH.key = ''; try { if (FH.key) localStorage.setItem('usdesk.fh', FH.key); else localStorage.removeItem('usdesk.fh'); } catch (e) {} $('fhKey').value = ''; setT('fhMsg', FH.key ? '저장됨. 1분마다 보유·봇·선택 종목 시세를 받아요.' : '시세 키를 지웠어요.'); renderBot(); liveQuotes(); };
