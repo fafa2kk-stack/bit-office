@@ -1,5 +1,5 @@
 // 최소 서비스워커: 설치 가능 조건용. 네트워크 우선, 실패 시 캐시 (앱 껍데기만).
-const CACHE = 'usoffice-v1';
+const CACHE = 'usoffice-v11';
 self.addEventListener('install', e => { self.skipWaiting(); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k))))); self.clients.claim(); });
 self.addEventListener('fetch', e => {

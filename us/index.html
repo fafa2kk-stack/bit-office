@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-M15Um7tNTNUIJDDvxEohDrHyUQKAYUJ+wTLTfoIFjfI='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.github.com https://raw.githubusercontent.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-beQYjVVDwhvqln/4/RixBhNybAboHli/7521tKDQFTA='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.github.com https://raw.githubusercontent.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -185,7 +185,7 @@ select{accent-color:var(--accent);background:var(--panel2);color:var(--ink);bord
 <body><div class="wrap">
 <header>
   <div class="brand">
-    <div class="logo">US OFFICE<small>직원 8명이 회의하고 규칙으로 결재하는 미국 지수 사무실 · v1.0</small></div>
+    <div class="logo">US OFFICE<small>직원 8명이 회의하고 규칙으로 결재하는 미국 지수 사무실 · v1.1</small></div>
     <button id="btnInstall" hidden style="font-size:12.5px;padding:8px 12px;border-radius:999px;background:linear-gradient(180deg,var(--accent2),var(--accent));color:var(--accent-ink);border:0">📲 앱으로 설치</button><div class="ticker"><canvas id="spark" width="144" height="52"></canvas><span><span class="px" id="tkPx">—</span> <span class="chg" id="tkChg">—</span><br><span class="note" id="tkDate">—</span></span></div>
   </div>
   <div class="banner" id="iosHint" hidden style="margin:8px 0 0;font-size:12px;padding:8px 10px">아이폰: 아래 공유 버튼(⬆) → 목록 아래로 → <b>홈 화면에 추가</b> 하면 앱처럼 열려요. <button class="ghost" id="iosHintClose" style="padding:2px 8px;font-size:11px;margin-left:6px">닫기</button></div>
@@ -201,14 +201,16 @@ select{accent-color:var(--accent);background:var(--panel2);color:var(--ink);bord
 <section id="office">
   <div class="office" id="officeBox">
     <canvas id="officeCv" width="640" height="360"></canvas>
-    <div class="stamp" id="stamp">REPLAY</div><div class="stamp" style="right:auto;left:8px;opacity:.7">v1.0</div>
+    <div class="stamp" id="stamp">REPLAY</div><div class="stamp" style="right:auto;left:8px;opacity:.7">v1.1</div>
   </div>
   <div class="pipe" id="pipe"><div data-stage="0" data-n="1">시황 보고</div><div data-stage="1" data-n="2">리서치 토론</div><div data-stage="2" data-n="3">리스크·집행</div><div data-stage="3" data-n="4">대표 결재</div></div>
   <div class="statusline"><span id="flowStatus">회의 준비 중</span><span><b id="flowVerdict">—</b></span></div>
 
   <div class="panel" style="margin-top:12px">
     <div class="ph"><h2>종목 고르기</h2><span class="sub">고르면 직원들이 그 종목으로 회의하고 결재합니다</span></div>
-    <div class="row" style="margin-top:0"><input type="text" id="symInput" list="symList" placeholder="티커 입력 (예: NVDA, AAPL, QQQ)" autocomplete="off" style="flex:1;min-width:160px;text-transform:uppercase"><datalist id="symList"></datalist><button class="primary" id="btnSym">회의 열기</button></div>
+    <div class="row" style="margin-top:0"><select id="symSelect" style="flex:1;min-width:160px;padding:9px 10px;font-size:14px"></select><button class="primary" id="btnSym">회의 열기</button></div>
+    <div class="row" style="margin-top:8px"><input type="text" id="symInput" placeholder="또는 티커·이름 검색 (예: NVDA, 테슬라 → TSLA)" autocomplete="off" autocapitalize="characters" style="flex:1;min-width:160px"></div>
+    <div class="controls" id="symSuggest" style="margin-top:6px"></div>
     <div class="controls" id="quickSyms" style="margin-top:8px"><button data-s="QQQ">QQQ</button><button data-s="SPY">SPY</button><button data-s="NVDA">NVDA</button><button data-s="AAPL">AAPL</button><button data-s="TSLA">TSLA</button><button data-s="MSFT">MSFT</button><button data-s="AMZN">AMZN</button><button data-s="META">META</button><button data-s="GOOGL">GOOGL</button><button data-s="AVGO">AVGO</button><button data-s="TSM">TSM</button><button data-s="SMH">SMH</button></div>
     <div class="note" id="symMsg" style="margin-top:6px"></div>
   </div>
@@ -664,10 +666,24 @@ function drawChart(){
 }
 
 // ------------------------------------------------------------ 종목 검색 / 봇 종목 편집
-function selectSymbol(sym){ sym = (sym || '').toUpperCase().trim(); if (!DATA[sym]) { setT('symMsg', `'${sym}' 은 목록에 없어요. PC 봇의 관심종목(US_WATCH)에 넣으면 다음 갱신 때 들어옵니다.`); return; } SEL = sym; setT('symMsg', ''); save(); renderAll(); runMeeting(); }
-{ const dl = document.getElementById('symList'); for (const s of SYMS){ const o = document.createElement('option'); o.value = s; o.label = `${s} — ${DATA[s].name || ''}`; dl.appendChild(o); } }
-document.getElementById('symInput').addEventListener('change', e => selectSymbol(e.target.value.split(' ')[0]));
-document.getElementById('btnSym').onclick = () => selectSymbol(document.getElementById('symInput').value.split(' ')[0]);
+function selectSymbol(sym){ sym = (sym || '').toUpperCase().trim(); if (!DATA[sym]) { setT('symMsg', `'${sym}' 은 목록에 없어요. PC 봇의 관심종목(US_WATCH)에 넣으면 다음 갱신 때 들어옵니다.`); return; } SEL = sym; setT('symMsg', ''); const sel = document.getElementById('symSelect'); if (sel.value !== sym) sel.value = sym; save(); renderAll(); runMeeting(); document.getElementById('officeBox').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+{ const sel = document.getElementById('symSelect'); const etf = SYMS.filter(s => (DATA[s].type || '') === 'ETF'), stk = SYMS.filter(s => (DATA[s].type || '') !== 'ETF');
+  const grp = (label, arr) => { const g = document.createElement('optgroup'); g.label = label; for (const s of arr){ const o = document.createElement('option'); o.value = s; o.textContent = `${s} — ${DATA[s].name || ''}`; g.appendChild(o); } sel.appendChild(g); };
+  grp('ETF (지수·섹터)', etf); grp('개별주식', stk);
+  sel.onchange = () => selectSymbol(sel.value); }
+const KO_ALIAS = { '테슬라': 'TSLA', '애플': 'AAPL', '엔비디아': 'NVDA', '마이크로소프트': 'MSFT', '아마존': 'AMZN', '구글': 'GOOGL', '메타': 'META', '넷플릭스': 'NFLX', '브로드컴': 'AVGO', '나스닥': 'QQQ', '에스앤피': 'SPY', 'S&P': 'SPY', '반도체': 'SMH', '팔란티어': 'PLTR', '코인베이스': 'COIN', '마이크로스트래티지': 'MSTR', 'AMD': 'AMD', '인텔': 'INTC', '디즈니': 'DIS', '코스트코': 'COST', '월마트': 'WMT', '버크셔': 'BRK-B', '비트코인': 'IBIT', '금': 'GLD', '채권': 'TLT', '중국': 'FXI', '한국': 'EWY', '일본': 'EWJ', 'TSMC': 'TSM', '삼성': 'EWY' };
+function suggest(q){
+  const box = document.getElementById('symSuggest'); q = (q || '').trim(); if (!q){ box.innerHTML = ''; return; }
+  const qU = q.toUpperCase(); const hits = [];
+  for (const [k, v] of Object.entries(KO_ALIAS)) if (k.includes(q) && DATA[v] && !hits.includes(v)) hits.push(v);
+  for (const s of SYMS) if (s.startsWith(qU) && !hits.includes(s)) hits.push(s);
+  for (const s of SYMS) if (hits.length < 10 && !hits.includes(s) && ((DATA[s].name || '').toUpperCase().includes(qU) || s.includes(qU))) hits.push(s);
+  box.innerHTML = hits.slice(0, 10).map(s => `<button data-s="${s}">${s} <span style="font-weight:500;color:var(--muted)">${(DATA[s].name || '').slice(0, 22)}</span></button>`).join('') || '<span class="note">목록에 없음 — PC 봇의 US_WATCH 에 추가하면 다음 날 들어와요</span>';
+  for (const b of box.querySelectorAll('button')) b.onclick = () => { selectSymbol(b.dataset.s); box.innerHTML = ''; document.getElementById('symInput').value = ''; };
+}
+document.getElementById('symInput').addEventListener('input', e => suggest(e.target.value));
+document.getElementById('symInput').addEventListener('keydown', e => { if (e.key === 'Enter'){ const first = document.querySelector('#symSuggest button'); if (first) first.click(); else selectSymbol(e.target.value); } });
+document.getElementById('btnSym').onclick = () => { const q = document.getElementById('symInput').value.trim(); if (q){ const first = document.querySelector('#symSuggest button'); if (first) first.click(); else selectSymbol(q); } else selectSymbol(document.getElementById('symSelect').value); };
 for (const b of document.querySelectorAll('#quickSyms button')) b.onclick = () => selectSymbol(b.dataset.s);
 function setBasket(b){ const tot = Object.values(b).reduce((a, x) => a + x, 0); for (const k of Object.keys(b)) b[k] = +(b[k] / tot).toFixed(4); S.basket = b; reset(); }
 document.getElementById('btnAddBot').onclick = () => { const b = { ...S.basket }; if (b[SEL]) { delete b[SEL]; if (!Object.keys(b).length) { setT('symMsg', '종목이 하나는 있어야 해요.'); return; } } else { b[SEL] = 1; for (const k of Object.keys(b)) b[k] = 1 / Object.keys(b).length; } setBasket(b); setT('symMsg', `모의 계좌를 ${Object.keys(S.basket).join('·')} 로 다시 돌렸어요. 실제 봇에 반영하려면 아래 [봇에 종목 저장].`); };
@@ -761,7 +777,7 @@ async function refreshUniverse(){
 }
 ensureBubbles();
 if (!load()) { CAL = calendar(); S.i = FIRST(); S.bh0 = Object.fromEntries(Object.keys(S.basket).map(s => [s, px(s, S.i)])); decide(true); }
-document.getElementById('selSpeed').value = String(S.speed); document.getElementById('symInput').value = SEL;
+document.getElementById('selSpeed').value = String(S.speed); document.getElementById('symSelect').value = SEL;
 try { const t = localStorage.getItem('usoffice.tab'); if (t) selectTab(t); } catch (e) {}
 renderAll(); loop(); runMeeting(); renderControl();
 (async () => { await refreshUniverse(); if (GH.token) await loadControl(); await loadBotStatus(); setInterval(loadBotStatus, 60000); })();
